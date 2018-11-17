@@ -1,0 +1,22 @@
+{
+	"name": "able/deadfish",
+	"type": "library",
+	"keywords": ["phpable", "deadfish"],
+	"description": "phpABLE resource compiler",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Kassius Kress",
+			"email": "hacpaka@kamora.vn"
+		}
+	],
+	"require": {
+		"php": ">=7.2.0",
+		"able/statics": "dev-master"
+	},
+	"autoload": {
+		"psr-4": {
+			"Able\\Facades\\": "src/"
+		}
+	}
+}
