@@ -8,7 +8,7 @@ use \Exception;
 
 /**
  * @property int level
- * @property int size
+ * @property int interval
  * @property bool changed
  * @property bool increased
  * @property bool decreased
@@ -20,7 +20,7 @@ class SIndent extends AStruct {
 	 * @var array
 	 */
 	protected static array $Prototype = [
-		'level', 'text', 'changed', 'increased', 'decreased',
+		'level', 'text', 'interval', 'changed', 'increased', 'decreased',
 	];
 
 	/**
@@ -43,6 +43,12 @@ class SIndent extends AStruct {
 	 */
 	protected const defaultLevelValue = 0;
 
+
+	/**
+	 * @var bool
+	 */
+	protected const defaultIntervalValue = 0;
+
 	/**
 	 * @param bool $value
 	 * @return bool
@@ -56,6 +62,10 @@ class SIndent extends AStruct {
 	 * @return bool
 	 */
 	public final function setIncreasedProperty(bool $value): bool {
+		if ($this->increased !== $value) {
+			$this->changed = true;
+		}
+
 		return $value;
 	}
 
@@ -64,6 +74,10 @@ class SIndent extends AStruct {
 	 * @return bool
 	 */
 	public final function setDecreasedProperty(bool $value): bool {
+		if ($this->decreased !== $value) {
+			$this->changed = true;
+		}
+
 		return $value;
 	}
 
@@ -81,26 +95,23 @@ class SIndent extends AStruct {
 			throw new Exception('Incorrect indentation characters!');
 		}
 
-		$this->changed = false;
-
-		$this->decreased = false;
-		$this->increased = false;
+		$this->flush('decreased', 'increased', 'changed');
+		$cached = $this->level;
 
 		if (strlen($indent) > Arr::last($this->Stack)) {
 			array_push($this->Stack, strlen($indent));
 
-			$this->changed = true;
 			$this->increased = true;
 			$this->level++;
 		} else {
-
 			while (strlen($indent) < Arr::last($this->Stack)) {
 				array_pop($this->Stack);
 
-				$this->changed = true;
 				$this->decreased = true;
 				$this->level--;
 			}
 		}
+
+		$this->interval = $this->level - $cached;
  	}
 }
