@@ -2,18 +2,16 @@
 namespace Able\Bender\Abstractions;
 
 use \Able\IO\ReadingStream;
+use \Able\IO\Abstractions\AStreamReader;
+
 use \Able\Reglib\Regex;
 
 use \Able\Bender\Structures\SIndent;
 
 use \Exception;
 
-abstract class AInterpriter {
-
-	/**
-	 * @var ReadingStream
-	 */
-	private ReadingStream $Stream;
+abstract class AInterpriter
+	extends AStreamReader {
 
 	/**
 	 * @var SIndent
@@ -24,7 +22,7 @@ abstract class AInterpriter {
 	 * @param ReadingStream $Stream
 	 */
 	public function __construct(ReadingStream $Stream) {
-		$this->Stream = $Stream;
+		parent::__construct($Stream);
 		$this->Indent = new SIndent();
 	}
 
@@ -33,21 +31,30 @@ abstract class AInterpriter {
 	 * @throws Exception
 	 */
 	public function execute(): void {
-		while (!is_null($line = $this->Stream->read())) {
-			$this->Indent->analize(Regex::create('/^\s+/')
-				->take($line));
+		while (!is_null($line = $this->stream()->read())) {
+			if (!empty($line)) {
 
-			if ($this->Indent->level < 1) {
-				$this->Stream->rollback();
-				break;
+				$this->Indent->analize(Regex::create('/^\s+/')
+					->take($line));
+
+				if ($this->Indent->level < 1) {
+					$this->stream()->rollback();
+					$this->finalize();
+					break;
+				}
+
+				$this->interpretate(trim($line));
 			}
-
-			$this->interpretate(trim($line));
 		}
 	}
 
 	/**
 	 * @param string $line
 	 */
-	abstract public function interpretate(string $line): void;
+	abstract protected function interpretate(string $line): void;
+
+	/**
+	 * @return void
+	 */
+	abstract protected function finalize(): void;
 }
