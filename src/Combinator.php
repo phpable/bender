@@ -10,6 +10,8 @@ use \Able\Helpers\Arr;
 use \Able\Reglib\Regex;
 
 use \Able\Bender\Interpreters\Register;
+use \Able\Bender\Interpreters\Composer;
+
 use \Able\Bender\Structures\SIndent;
 
 use \Exception;
@@ -49,7 +51,7 @@ class Combinator {
 	 * @throws Exception
 	 */
 	protected function intepretate(string $line): void {
-		echo sprintf("==>%s\n", $line);
+		echo sprintf("~==>0:%s\n", $line);
 
 		switch ($line) {
 			case 'register';
@@ -57,8 +59,8 @@ class Combinator {
 				break;
 
 			default:
-				if (preg_match('/^=[A-Za-z0-9_]+\.[A-Za-z0-9]{3,}/', $line)) {
-					_dumpe($line);
+				if (preg_match('/^=[A-Za-z0-9_]+\.[A-Za-z0-9]+/', $line)) {
+					(new Composer($this->Stream))->execute();
 				}
 		}
 	}
