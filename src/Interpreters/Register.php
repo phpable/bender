@@ -34,15 +34,15 @@ class Register
 		}
 
 		if ($this->Indent->decreased) {
-			array_pop($this->points);
+			$this->points =  Arr::push(Arr::cut($this->points, abs($this->Indent->interval) + 1), $Parsed[2]);
 		}
 
 		if ($this->Indent->increased) {
-			array_push($this->points, $Parsed[2]);
+			$this->points = Arr::push($this->points, $Parsed[2]);
 		}
 
-		if (!$this->Indent->increased && !$this->Indent->decreased) {
-			$this->points = Arr::push(Arr::cut($this->points, 1), $Parsed[2]);
+		if (!$this->Indent->changed) {
+			$this->points = Arr::push(Arr::cut($this->points), $Parsed[2]);
 		}
 
 		$this->Paths[Str::join('.', $this->points)] = $Parsed[1];
@@ -51,13 +51,15 @@ class Register
 	/**
 	 * @param string $name
 	 * @return Path|null
+	 *
+	 * @throws Exception
 	 */
 	public final function search(string $name): ?Path {
 			return isset($this->Paths[$name]) ? new Path($this->Paths[$name]) : null;
 	}
 
 	/**
-	 * @return void
+	 * @throws Exception
 	 */
 	protected final function finalize(): void {
 		foreach ($this->Paths as $name => $path) {
@@ -65,9 +67,6 @@ class Register
 				$this->Paths[$name] = $this->Paths[$Matches[1]] . $this->Paths[$name];
 			}
 		}
-
-
-		_dumpe($this->search('nm.tw'), $this->Paths);
 	}
 }
 
