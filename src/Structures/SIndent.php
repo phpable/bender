@@ -82,6 +82,25 @@ class SIndent extends AStruct {
 	}
 
 	/**
+	 * @param int $value
+	 * @return int
+	 */
+	public final function setLevelProperty(int $value): int {
+		$this->interval += ($value - $this->level);
+
+		if ($this->level > $value) {
+			$this->decreased = true;
+		}
+
+		if ($this->level < $value) {
+			$this->increased = true;
+		}
+
+		return $value;
+	}
+
+
+	/**
 	 * @var int[]
 	 */
 	private array $Stack = [];
@@ -95,23 +114,19 @@ class SIndent extends AStruct {
 			throw new Exception('Incorrect indentation characters!');
 		}
 
-		$this->flush('decreased', 'increased', 'changed');
-		$cached = $this->level;
+		$this->flush('interval',
+			'decreased', 'increased', 'changed');
 
 		if (strlen($indent) > Arr::last($this->Stack)) {
 			array_push($this->Stack, strlen($indent));
 
-			$this->increased = true;
 			$this->level++;
 		} else {
 			while (strlen($indent) < Arr::last($this->Stack)) {
 				array_pop($this->Stack);
 
-				$this->decreased = true;
 				$this->level--;
 			}
 		}
-
-		$this->interval = $this->level - $cached;
  	}
 }
