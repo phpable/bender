@@ -26,6 +26,8 @@ class Register
 
 	/**
 	 * @param string $line
+	 * @return void
+	 *
 	 * @throws Exception
 	 */
 	protected final function interpretate(string $line): void {
@@ -33,15 +35,15 @@ class Register
 			throw new \Exception(sprintf('Invalid format: %s!', $line));
 		}
 
-		if ($this->Indent->decreased) {
-			$this->points =  Arr::push(Arr::cut($this->points, abs($this->Indent->interval) + 1), $Parsed[2]);
+		if ($this->indent()->decreased) {
+			$this->points =  Arr::push(Arr::cut($this->points, abs($this->indent()->interval) + 1), $Parsed[2]);
 		}
 
-		if ($this->Indent->increased) {
+		if ($this->indent()->increased) {
 			$this->points = Arr::push($this->points, $Parsed[2]);
 		}
 
-		if (!$this->Indent->changed) {
+		if (!$this->indent()->changed) {
 			$this->points = Arr::push(Arr::cut($this->points), $Parsed[2]);
 		}
 
