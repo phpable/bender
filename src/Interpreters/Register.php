@@ -1,8 +1,10 @@
 <?php
 namespace Able\Bender\Interpreters;
 
+use \Able\Bender\Utilities\Registry;
 use \Able\Bender\Abstractions\AInterpriter;
 
+use Able\IO\Directory;
 use \Able\IO\Path;
 use \Able\IO\ReadingStream;
 
@@ -15,6 +17,20 @@ class Register
 	extends AInterpriter {
 
 	/**
+	 * @var Directory
+	 */
+	private Directory $Point;
+
+	/**
+	 * @param ReadingStream $Stream
+	 * @param Directory $Point
+	 */
+	public final function __construct(ReadingStream $Stream, Directory $Point) {
+		parent::__construct($Stream);
+		$this->Point = $Point;
+	}
+
+	/**
 	 * @var array
 	 */
 	private array $Paths = [];
@@ -22,7 +38,7 @@ class Register
 	/**
 	 * @var string[]
 	 */
-	private array $points = [];
+	private array $Points = [];
 
 	/**
 	 * @param string $line
@@ -36,28 +52,28 @@ class Register
 		}
 
 		if ($this->indent()->decreased) {
-			$this->points =  Arr::push(Arr::cut($this->points, abs($this->indent()->interval) + 1), $Parsed[2]);
+			$this->Points =  Arr::push(Arr::cut($this->Points, abs($this->indent()->interval) + 1), $Parsed[2]);
 		}
 
 		if ($this->indent()->increased) {
-			$this->points = Arr::push($this->points, $Parsed[2]);
+			$this->Points = Arr::push($this->Points, $Parsed[2]);
 		}
 
 		if (!$this->indent()->changed) {
-			$this->points = Arr::push(Arr::cut($this->points), $Parsed[2]);
+			$this->Points = Arr::push(Arr::cut($this->Points), $Parsed[2]);
 		}
 
-		$this->Paths[Str::join('.', $this->points)] = $Parsed[1];
+		$this->Paths[Str::join('.', $this->Points)] = $Parsed[1];
 	}
 
 	/**
-	 * @param string $name
-	 * @return Path|null
-	 *
+	 * @return Registry
 	 * @throws Exception
 	 */
-	public final function search(string $name): ?Path {
-			return isset($this->Paths[$name]) ? new Path($this->Paths[$name]) : null;
+	public final function toRegistry(): Registry {
+		return new Registry(array_map(function ($_){
+			return($this->Point->toPath()->append($_));
+		}, $this->Paths));
 	}
 
 	/**

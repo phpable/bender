@@ -6,6 +6,7 @@ use \Able\Bender\Abstractions\AInterpriter;
 use \Able\Bender\Interpreters\Combine;
 use \Able\Bender\Interpreters\Minimize;
 
+use Able\Bender\Utilities\Registry;
 use \Able\IO\Path;
 use \Able\IO\File;
 use \Able\IO\ReadingStream;
@@ -25,23 +26,16 @@ class Composer
 
 	/**
 	 * @param ReadingStream $Stream
+	 * @param Registry $Registry
 	 * @param File $File
 	 *
 	 * @throws Exception
 	 */
-	public final function __construct(ReadingStream $Stream, File $File) {
-		parent::__construct($Stream);
+	public final function __construct(ReadingStream $Stream, Registry $Registry, File $File) {
+		parent::__construct($Stream, $Registry);
 
 		$this->File = $File;
 		$this->File->purge();
-	}
-
-	/**
-	 * @param string $line
-	 * @throws Exception
-	 */
-	protected final function interpretate(string $line): void {
-		throw new \Exception(sprintf('Invalid instruction: %s!', $line));
 	}
 
 	/**

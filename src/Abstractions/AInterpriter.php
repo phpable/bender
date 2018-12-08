@@ -9,6 +9,7 @@ use \Able\IO\Abstractions\AStreamReader;
 use \Able\Reglib\Regex;
 
 use \Able\Bender\Structures\SIndent;
+use \Able\Bender\Utilities\Registry;
 use \Able\Bender\Abstractions\TOption;
 
 use \Able\Prototypes\IExecutable;
@@ -58,10 +59,30 @@ abstract class AInterpriter
 	}
 
 	/**
-	 * @param ReadingStream $Stream
+	 * @var Registry
 	 */
-	public function __construct(ReadingStream $Stream) {
+	private Registry $Registry;
+
+	/**
+	 * @return Registry
+	 */
+	protected final function registry(): Registry {
+		return $this->Registry;
+	}
+
+	/**
+	 * AInterpriter constructor.
+	 * @param ReadingStream $Stream
+	 * @param Registry|null $Registry
+	 */
+	public function __construct(ReadingStream $Stream, ?Registry $Registry = null) {
 		parent::__construct($Stream);
+
+		if (!is_null($Registry)) {
+			$this->Registry = $Registry;
+		} else {
+			$this->Registry = new Registry();
+		}
 
 		$this->Indent = new SIndent();
 		$this->Output = new WritingBuffer();
@@ -79,7 +100,7 @@ abstract class AInterpriter
 			if (class_exists($class = sprintf('%s\\Interpreters\\%s',
 			 	Src::lns(AInterpriter::class, 2), Src::tcm($Parsed[1])))) {
 
-				$Nested = new $class($this->stream());
+				$Nested = new $class($this->stream(), $this->registry());
 				$Nested->execute();
 
 				$this->output()->write($Nested->output()->toReadingBuffer()->read());
@@ -91,10 +112,10 @@ abstract class AInterpriter
 	}
 
 	/**
-	 * @return void
+	 * @return AInterpriter
 	 * @throws Exception
 	 */
-	public final function execute(): void {
+	public final function execute(): AInterpriter {
 		while (!is_null($line = $this->stream()->read())) {
 			if (!empty($line)) {
 
@@ -118,13 +139,17 @@ abstract class AInterpriter
 				$this->interpretate($line);
 			}
 		}
+
+		return $this;
 	}
 
 	/**
 	 * @param string $line
-	 * @return void
+	 * @throws Exception
 	 */
-	abstract protected function interpretate(string $line): void;
+	protected function interpretate(string $line): void {
+		throw new \Exception(sprintf('Invalid instruction: %s!', $line));
+	}
 
 	/**
 	 * @return void

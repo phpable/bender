@@ -1,6 +1,7 @@
 <?php
 namespace Able\Bender;
 
+use Able\Bender\Utilities\Registry;
 use Able\IO\Directory;
 use \Able\IO\Path;
 use \Able\IO\File;
@@ -30,13 +31,6 @@ class Combinator {
 	 * @var Directory
 	 */
 	private Directory $Point;
-
-	/**
-	 * @return Directory
-	 */
-	protected final function getPoint(): Directory {
-		return $this->Point;
-	}
 
 	/**
 	 * @param File $Manifest
@@ -86,8 +80,13 @@ class Combinator {
 	 * @throws Exception
 	 */
 	protected final function configureOutput(string $value): void {
-		$this->Output = $this->getPoint()->toPath()->append($value)->forceDirectory();
+		$this->Output = $this->Point->toPath()->append($value)->forceDirectory();
 	}
+
+	/**
+	 * @var Registry|null
+	 */
+	private Registry $Registry;
 
 	/**
 	 * @param string $line
@@ -105,11 +104,12 @@ class Combinator {
 		} else {
 			switch ($line) {
 				case 'register';
-					(new Register($this->Stream))->execute();
+					$this->Registry = (new Register($this->Stream, $this->Point))
+						->execute()->toRegistry();
 					break;
 				default:
 					if (preg_match('/^=([A-Za-z0-9_]+\.[A-Za-z0-9]+)/', $line, $Matches)) {
-						(new Composer($this->Stream,
+						(new Composer($this->Stream, $this->Registry,
 							$this->output()->toPath()->append($Matches[1])->forceFile()))->execute();
 					}
 			}
