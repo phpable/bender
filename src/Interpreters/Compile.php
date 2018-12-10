@@ -2,6 +2,8 @@
 namespace Able\Bender\Interpreters;
 
 use \Able\Bender\Abstractions\AInterpriter;
+use \Able\Bender\Abstractions\TTarget;
+
 use \Able\Bender\Utilities\Registry;
 
 use \Able\IO\ReadingBuffer;
@@ -14,6 +16,8 @@ use \Generator;
 
 class Compile
 	extends AInterpriter {
+
+	use TTarget;
 
 	/**
 	 * @var Compiler
@@ -30,25 +34,9 @@ class Compile
 	 * @throws Exception
 	 */
 	public function interpretate(string $line): void {
-		if (!preg_match('/^&([A-Za-z0-9_.-]+){([^}]+)}$/', $line, $Matches)) {
-			throw new Exception(sprintf('Invalid target: %s!', $line));
-		}
-
-		if (is_null($Path = $this->registry()->search($Matches[1]))
-			|| !$Path->isReadable()) {
-
-				throw new Exception(sprintf('Invalid target allias: %s', $Matches[1]));
-		}
-
-		foreach(preg_split('/\s*,\s*/', $Matches[2], -1, PREG_SPLIT_NO_EMPTY) as $name) {
-			$Target = $Path->toPath()->append($name);
-
-			if (!$Target->isReadable()) {
-				throw new Exception(sprintf('Invalid target destination: %s!', $Target->toString()));
-			}
-
+		foreach ($this->parseTarget($line) as $Target) {
 			$this->output()->write(call_user_func(function() use ($Target) {
-				yield $this->Compiler->compile($Target->toFile()->getContent());
+				yield $this->Compiler->compile($Target->getContent());
 			}));
 		}
 	}
