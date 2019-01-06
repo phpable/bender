@@ -1,6 +1,12 @@
 <?php
 namespace Able\Bender\Abstractions;
 
+use \Able\IO\Path;
+use \Able\IO\File;
+use \Able\IO\Writer;
+use \Able\IO\Reader;
+use \Able\IO\Directory;
+
 use \Able\IO\ReadingStream;
 use \Able\IO\WritingBuffer;
 
@@ -10,7 +16,10 @@ use \Able\Reglib\Regex;
 
 use \Able\Bender\Structures\SIndent;
 use \Able\Bender\Utilities\Registry;
+
 use \Able\Bender\Abstractions\TOption;
+use \Able\Bender\Abstractions\TIndent;
+use \Able\Bender\Abstractions\TRegistry;
 
 use \Able\Prototypes\IExecutable;
 
@@ -24,68 +33,77 @@ abstract class AInterpriter
 	extends AStreamReader
 
 	implements IExecutable {
+
 	use TOption;
+	use TIndent;
+	use TRegistry;
 
 	/**
-	 * @var SIndent
+	 * @var Directory
 	 */
-	private SIndent $Indent;
+	private Directory $Point;
 
 	/**
-	 * @return SIndent
+	 * @return Directory
 	 */
-	protected final function indent(): SIndent {
-		return $this->Indent;
+	protected final function point(): Directory {
+		return $this->Point;
 	}
 
 	/**
-	 * @var WritingBuffer
-	 */
-	private WritingBuffer $Output;
-
-	/**
-	 * @return WritingBuffer
-	 */
-	protected final function output(): WritingBuffer {
-		return $this->Output;
-	}
-
-	/**
-	 * @return Generator
+	 * @param ReadingStream $Stream
+	 * @param Directory $Point
+	 *
 	 * @throws Exception
 	 */
-	public final function read(): Generator {
-		yield from $this->output()->toReadingBuffer()->read();
-	}
-
-	/**
-	 * @var Registry
-	 */
-	private Registry $Registry;
-
-	/**
-	 * @return Registry
-	 */
-	protected final function registry(): Registry {
-		return $this->Registry;
-	}
-
-	/**
-	 * AInterpriter constructor.
-	 * @param ReadingStream $Stream
-	 * @param Registry|null $Registry
-	 */
-	public function __construct(ReadingStream $Stream, ?Registry $Registry = null) {
+	public function __construct(ReadingStream $Stream, Directory $Point) {
 		parent::__construct($Stream);
 
-		if (!is_null($Registry)) {
-			$this->Registry = $Registry;
-		} else {
-			$this->Registry = new Registry();
+		if (!is_writable($Point)) {
+			throw new \Exception(sprintf('Pointed directory is not writable: %s!', $Point));
 		}
 
-		$this->Indent = new SIndent();
-		$this->Output = new WritingBuffer();
+		$this->Point = $Point;
+	}
+
+	/**
+	 * @throws Exception
+	 */
+	public function __destruct() {
+		$this->storage()->remove();
+	}
+
+	/**
+	 * @var File|null
+	 */
+	private ?File $Storage = null;
+
+	/**
+	 * @return File
+	 * @throws Exception
+	 */
+	public final function storage(): File {
+		if (is_null($this->Storage)) {
+			$this->Storage = $this->point()->toPath()->appendRandom()->forceFile();
+		}
+
+		return $this->Storage;
+	}
+
+	/**
+	 * @return Writer
+	 * @throws Exception
+	 */
+	protected final function input(): Writer {
+		return $this->storage()->toWriter();
+	}
+
+	/**
+	 * @return Reader
+	 * @throws Exception
+	 */
+	protected final function output(): Reader {
+		return $this->storage()->toReader();
 	}
 
 	/**
@@ -100,10 +118,10 @@ abstract class AInterpriter
 			if (class_exists($class = sprintf('%s\\Interpreters\\%s',
 			 	Src::lns(AInterpriter::class, 2), Src::tcm($Parsed[1])))) {
 
-				$Nested = new $class($this->stream(), $this->registry());
+				$Nested = new $class($this->stream(), $this->Point);
 				$Nested->execute();
 
-				$this->output()->write($Nested->output()->toReadingBuffer()->read());
+				$this->input()->write($Nested->output()->read());
 				return true;
 			}
 		}

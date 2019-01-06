@@ -17,20 +17,6 @@ class Register
 	extends AInterpriter {
 
 	/**
-	 * @var Directory
-	 */
-	private Directory $Point;
-
-	/**
-	 * @param ReadingStream $Stream
-	 * @param Directory $Point
-	 */
-	public final function __construct(ReadingStream $Stream, Directory $Point) {
-		parent::__construct($Stream);
-		$this->Point = $Point;
-	}
-
-	/**
 	 * @var array
 	 */
 	private array $Paths = [];
@@ -72,7 +58,7 @@ class Register
 	 */
 	public final function toRegistry(): Registry {
 		return new Registry(array_map(function ($_){
-			return($this->Point->toPath()->append($_));
+			return($this->point()->toPath()->append($_));
 		}, $this->Paths));
 	}
 
@@ -82,7 +68,9 @@ class Register
 	protected final function finalize(): void {
 		foreach ($this->Paths as $name => $path) {
 			if (preg_match('/^(.*)\.[A-Za-z0-9_-]+$/', $name, $Matches)) {
-				$this->Paths[$name] = $this->Paths[$Matches[1]] . $this->Paths[$name];
+
+				$this->registry()->register($name, $this->point()
+					->toPath()->append($this->Paths[$Matches[1]], $this->Paths[$name]));
 			}
 		}
 	}

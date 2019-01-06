@@ -6,12 +6,12 @@ use \Able\Bender\Abstractions\TTarget;
 
 use \Able\Bender\Utilities\Registry;
 
-use \Able\IO\ReadingBuffer;
+use \Able\IO\Directory;
 use \Able\IO\ReadingStream;
 
 use \ScssPhp\ScssPhp\Compiler;
-use \Exception;
 
+use \Exception;
 use \Generator;
 
 class Compile
@@ -24,8 +24,13 @@ class Compile
 	 */
 	private Compiler $Compiler;
 
-	public final function __construct(ReadingStream $Stream, Registry $Registry) {
-		parent::__construct($Stream, $Registry);
+	/**
+	 * @param ReadingStream $Stream
+	 * @param Directory $Point
+	 * @throws Exception
+	 */
+	public final function __construct(ReadingStream $Stream, Directory $Point) {
+		parent::__construct($Stream, $Point);
 		$this->Compiler = new Compiler();
 	}
 
@@ -35,8 +40,10 @@ class Compile
 	 */
 	public function interpretate(string $line): void {
 		foreach ($this->parseTarget($line) as $Target) {
-			$this->output()->write(call_user_func(function() use ($Target) {
-				yield $this->Compiler->compile($Target->getContent());
+			$this->input()->write(call_user_func(function() use ($Target) {
+
+				yield $this->Compiler
+					->compile($Target->getContent());
 			}));
 		}
 	}

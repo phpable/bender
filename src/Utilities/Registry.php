@@ -2,6 +2,7 @@
 namespace Able\Bender\Utilities;
 
 use \Able\IO\Path;
+use \Able\IO\Directory;
 
 use \Able\Prototypes\ICountable;
 use \Able\Prototypes\IArrayable;
@@ -28,6 +29,14 @@ class Registry
 	 */
 	public final function __construct(array $Data = []) {
 		$this->Data = $Data;
+	}
+
+	/**
+	 * @param string $name
+	 * @param Path $Path
+	 */
+	public final function register(string $name, Path $Path): void {
+		$this->Data[$name] = $Path;
 	}
 
 	/**

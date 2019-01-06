@@ -49,20 +49,6 @@ class Combinator {
 	}
 
 	/**
-	 * @throws Exception
-	 */
-	public function execute() {
-		while (!is_null($line = $this->Stream->read())) {
-
-			if (preg_match('/^\s+/', $line)) {
-				throw new \Exception(sprintf('Invalid offset in line %d!', $this->Stream->getIndex()));
-			}
-
-			$this->intepretate(trim($line));
-		}
-	}
-
-	/**
 	 * @var Directory|null
 	 */
 	private ?Directory $Output = null;
@@ -71,7 +57,7 @@ class Combinator {
 	 * @return Directory
 	 * @throws Exception
 	 */
-	protected final function output(): Directory {
+	public final function output(): Directory {
 		return !is_null($this->Output) ? $this->Output : (new Path(__DIR__))->toDirectory();
 	}
 
@@ -84,34 +70,83 @@ class Combinator {
 	}
 
 	/**
-	 * @var Registry|null
+	 * @var Directory|null
 	 */
-	private Registry $Registry;
+	private ?Directory $Temporary = null;
 
 	/**
-	 * @param string $line
+	 * @return Directory
 	 * @throws Exception
 	 */
-	protected function intepretate(string $line): void {
-		echo sprintf("~==>0:%s\n", $line);
+	public final function teporary(): Directory {
+		return !is_null($this->Temporary) ? $this->Temporary : (new Path(__DIR__))->toDirectory();
+	}
 
-		if (preg_match('/^%([A-Za-z0-9]+)\s+=\s+(.+)$/', $line, $Matches)) {
-			if (!method_exists($this, $name = sprintf('configure%s', ucfirst($Matches[1])))) {
-				throw new \Exception(sprintf('Invalid directive: %s!', $Matches[1]));
+	/**
+	 * @param string $value
+	 * @throws Exception
+	 */
+	protected final function configureTemporary(string $value): void {
+		$this->Temporary = $this->Point->toPath()->append($value)->forceDirectory();
+	}
+
+
+	/**
+	 * @throws Exception
+	 */
+	public function execute() {
+		while (!is_null($line = $this->Stream->read())) {
+			if (empty($line)) {
+
+				/**
+				 * Empty lines are always ignored.
+				 */
+				continue;
 			}
 
-			$this->{$name}($Matches[2]);
-		} else {
+			if (preg_match('/^#+/', $line)) {
+
+				/**
+				 * Lines leading by a hash symbol are recognized
+				 * like a single-line comment and always ignored.
+				 */
+				continue;
+			}
+
+			if (preg_match('/^%([A-Za-z0-9]+)\s+=\s+(.+)$/', $line, $Matches)) {
+
+				/**
+				 * Lines leading by a percent symbol are recognized as a part
+				 * of the configuration and need to be cared for by a special logic.
+				 */
+				if (!method_exists($this, $name = sprintf('configure%s', ucfirst($Matches[1])))) {
+					throw new \Exception(sprintf('Invalid directive: %s!', $Matches[1]));
+				}
+
+				$this->{$name}($Matches[2]);
+				continue;
+			}
+
+			if (preg_match('/^=([A-Za-z0-9_]+\.[A-Za-z0-9]+)/', $line, $Matches)) {
+
+				/**
+				 * Lines leading by an equal sign are recognized like targets declarations
+				 * and need to be sent to the composer for further processing.
+				 */
+				(new Composer($this->Stream,
+					$this->teporary(),
+					$this->output()->toPath()->append($Matches[1])->forceFile())
+				)->execute();
+
+				continue;
+			}
+
 			switch ($line) {
 				case 'register';
-					$this->Registry = (new Register($this->Stream, $this->Point))
-						->execute()->toRegistry();
+					(new Register($this->Stream, $this->Point))->execute();
 					break;
 				default:
-					if (preg_match('/^=([A-Za-z0-9_]+\.[A-Za-z0-9]+)/', $line, $Matches)) {
-						(new Composer($this->Stream, $this->Registry,
-							$this->output()->toPath()->append($Matches[1])->forceFile()))->execute();
-					}
+					throw new \Exception('Invalid syntax!');
 			}
 		}
 	}

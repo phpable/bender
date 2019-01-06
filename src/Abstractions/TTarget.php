@@ -2,12 +2,15 @@
 namespace Able\Bender\Abstractions;
 
 use \Generator;
+use \Exception;
 
 trait TTarget {
 
 	/**
 	 * @param string $line
 	 * @return Generator
+	 *
+	 * @throws Exception
 	 */
 	public final function parseTarget(string $line): Generator {
 		if (!preg_match('/^&([A-Za-z0-9_.-]+){([^}]+)}$/', $line, $Matches)) {

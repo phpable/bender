@@ -6,9 +6,11 @@ use \Able\Bender\Abstractions\AInterpriter;
 use \Able\Bender\Interpreters\Combine;
 use \Able\Bender\Interpreters\Minimize;
 
-use Able\Bender\Utilities\Registry;
+use \Able\Bender\Utilities\Registry;
+
 use \Able\IO\Path;
 use \Able\IO\File;
+use \Able\IO\Directory;
 use \Able\IO\ReadingStream;
 
 use \Able\Helpers\Src;
@@ -22,27 +24,27 @@ class Composer
 	/**
 	 * @var File
 	 */
-	private File $File;
+	private File $Target;
 
 	/**
 	 * @param ReadingStream $Stream
-	 * @param Registry $Registry
-	 * @param File $File
+	 * @param Directory $Point
+	 * @param File $Target
 	 *
 	 * @throws Exception
 	 */
-	public final function __construct(ReadingStream $Stream, Registry $Registry, File $File) {
-		parent::__construct($Stream, $Registry);
+	public final function __construct(ReadingStream $Stream, Directory $Point, File $Target) {
+		parent::__construct($Stream, $Point);
 
-		$this->File = $File;
-		$this->File->purge();
+		$this->Target = $Target;
+		$this->Target->purge();
 	}
 
 	/**
 	 * @throws Exception
 	 */
 	protected final function finalize(): void {
-		$this->File->toWriter()
-			->write($this->output()->toReadingBuffer()->read());
+		$this->Target->toWriter()
+			->consume($this->output());
 	}
 }
