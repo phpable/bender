@@ -135,27 +135,32 @@ abstract class AInterpriter
 	 */
 	public final function execute(): AInterpriter {
 		while (!is_null($line = $this->stream()->read())) {
-			if (!empty($line)) {
+			if (empty($line)) {
 
-				$this->indent()->analize(Regex::create('/^\s+/')
-					->take($line));
-
-				if ($this->indent()->level < 1) {
-					$this->stream()->rollback();
-					$this->finalize();
-					break;
-				}
-
-				if ($this->parseOption($line = trim($line))) {
-					continue;
-				}
-
-				if ($this->parseNested($line)) {
-					continue;
-				}
-
-				$this->interpretate($line);
+				/**
+				 * Empty lines are always ignored.
+				 */
+				continue;
 			}
+
+			$this->indent()->analize(Regex::create('/^\s+/')
+				->take($line));
+
+			if ($this->indent()->level < 1) {
+				$this->stream()->rollback();
+				$this->finalize();
+				break;
+			}
+
+			if ($this->parseOption($line = trim($line))) {
+				continue;
+			}
+
+			if ($this->parseNested($line)) {
+				continue;
+			}
+
+			$this->interpretate($line);
 		}
 
 		return $this;
