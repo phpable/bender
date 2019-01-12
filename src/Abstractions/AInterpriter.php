@@ -67,13 +67,6 @@ abstract class AInterpriter
 	}
 
 	/**
-	 * @throws Exception
-	 */
-	public function __destruct() {
-		$this->storage()->remove();
-	}
-
-	/**
 	 * @var File|null
 	 */
 	private ?File $Storage = null;
@@ -107,6 +100,15 @@ abstract class AInterpriter
 	}
 
 	/**
+	 * @throws Exception
+	 */
+	public function __destruct() {
+		if (!is_null($this->Storage)) {
+			$this->storage()->remove();
+		}
+	}
+
+	/**
 	 * @param string $line
 	 * @return bool
 	 *
@@ -121,7 +123,7 @@ abstract class AInterpriter
 				$Nested = new $class($this->stream(), $this->Point);
 				$Nested->execute();
 
-				$this->input()->write($Nested->output()->read());
+				$this->input()->consume($Nested->output());
 				return true;
 			}
 		}
@@ -148,7 +150,6 @@ abstract class AInterpriter
 
 			if ($this->indent()->level < 1) {
 				$this->stream()->rollback();
-				$this->finalize();
 				break;
 			}
 
@@ -162,6 +163,8 @@ abstract class AInterpriter
 
 			$this->interpretate($line);
 		}
+
+		$this->finalize();
 
 		return $this;
 	}

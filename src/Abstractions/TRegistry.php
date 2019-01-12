@@ -15,7 +15,7 @@ trait TRegistry {
 	 */
 	protected final function registry(): Registry {
 		if (is_null(static::$Registry)) {
-			static::$Registry = new Registry();
+			static::$Registry = new Registry($this->point());
 		}
 
 		return static::$Registry;

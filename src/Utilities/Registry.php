@@ -25,17 +25,34 @@ class Registry
 	}
 
 	/**
-	 * @param array $Data
+	 * @var Directory
 	 */
-	public final function __construct(array $Data = []) {
-		$this->Data = $Data;
+	protected Directory $Directory;
+
+	/**
+	 * @param Directory $Directory
+	 */
+	public final function __construct(Directory $Directory) {
+		$this->Directory = $Directory;
 	}
 
 	/**
 	 * @param string $name
 	 * @param Path $Path
+	 *
+	 * @throws Exception
 	 */
 	public final function register(string $name, Path $Path): void {
+		if (preg_match('/^(.*)\.[A-Za-z0-9_-]+$/', $name, $Matches)) {
+			if (is_null($Prefix = $this->search($Matches[1]))) {
+				throw new \Exception(sprintf('Invalid refix: %s!', $Matches[1]));
+			}
+
+			$Path->prepend($Prefix);
+		} else {
+			$Path->prepend($this->Directory);
+		}
+
 		$this->Data[$name] = $Path;
 	}
 

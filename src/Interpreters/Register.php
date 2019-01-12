@@ -49,30 +49,11 @@ class Register
 			$this->Points = Arr::push(Arr::cut($this->Points), $Parsed[2]);
 		}
 
-		$this->Paths[Str::join('.', $this->Points)] = $Parsed[1];
+		$this->registry()->register(Str::join('.', $this->Points), new Path($Parsed[1]));
 	}
 
-	/**
-	 * @return Registry
-	 * @throws Exception
-	 */
-	public final function toRegistry(): Registry {
-		return new Registry(array_map(function ($_){
-			return($this->point()->toPath()->append($_));
-		}, $this->Paths));
-	}
-
-	/**
-	 * @throws Exception
-	 */
-	protected final function finalize(): void {
-		foreach ($this->Paths as $name => $path) {
-			if (preg_match('/^(.*)\.[A-Za-z0-9_-]+$/', $name, $Matches)) {
-
-				$this->registry()->register($name, $this->point()
-					->toPath()->append($this->Paths[$Matches[1]], $this->Paths[$name]));
-			}
-		}
+	public function finalize(): void {
+		// TODO: Implement finalize() method.
 	}
 }
 
