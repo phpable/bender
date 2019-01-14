@@ -113,42 +113,6 @@ abstract class AStreamable
 		return false;
 	}
 
-//	/**
-//	 * @return File
-//	 * @throws Exception
-//	 */
-//	public final function execute(): File {
-//		while (!is_null($line = $this->stream()->read())) {
-//			if (empty($line)) {
-//
-//				/**
-//				 * Empty lines are always ignored.
-//				 */
-//				continue;
-//			}
-//
-//			$this->indent()->parse(Regex::create('/^\s+/')
-//				->take($line));
-//
-//			if ($this->indent()->level < 1) {
-//				$this->stream()->rollback();
-//				break;
-//			}
-//
-//			if ($this->parseOption($line = trim($line))) {
-//				continue;
-//			}
-//
-//			if ($this->parseNested($line)) {
-//				continue;
-//			}
-//
-//			$this->interpretate($line);
-//		}
-//
-//		return $this->storage();
-//	}
-
 	/**
 	 * @param string $line
 	 * @return bool

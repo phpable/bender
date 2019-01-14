@@ -31,7 +31,6 @@ class Registry
 
 	/**
 	 * @param Directory|null $Directory
-	 * @throws Exception
 	 */
 	public final function __construct(?Directory $Directory = null) {
 		$this->Directory = !is_null($Directory) ? $Directory : (new Path(getcwd()))->toDirectory();

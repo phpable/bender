@@ -21,8 +21,6 @@ class Combine
 	 * @throws Exception
 	 */
 	public function interpretate(string $line): void {
-		_dumpe($this->registry()->toArray());
-
 		foreach ($this->parseTarget($line) as $Target) {
 			$this->storage()->toWriter()->consume($Target->toReader());
 		}

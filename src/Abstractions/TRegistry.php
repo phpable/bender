@@ -2,8 +2,14 @@
 namespace Able\Bender\Abstractions;
 
 use Able\Bender\Utilities\Registry;
+use Able\IO\Directory;
 
 trait TRegistry {
+
+	/**
+	 * @var Directory|null
+	 */
+	protected ?Directory $Prefix = null;
 
 	/**
 	 * @var Registry|null
@@ -15,7 +21,7 @@ trait TRegistry {
 	 */
 	protected final function registry(): Registry {
 		if (is_null(static::$Registry)) {
-			self::$Registry = new Registry();
+			self::$Registry = new Registry($this->Prefix);
 		}
 
 		return self::$Registry;

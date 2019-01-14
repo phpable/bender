@@ -22,6 +22,22 @@ class Register
 	private array $Points = [];
 
 	/**
+	 * @param ReadingStream $Stream
+	 * @param Directory $Prefix
+	 *
+	 * @throws Exception
+	 */
+	public final function __construct(ReadingStream $Stream, Directory $Prefix) {
+		parent::__construct($Stream);
+
+		if (!$Prefix->isWritable()) {
+			throw new Exception(sprintf('The prefix directory is not writable: %s!', $Prefix));
+		}
+
+		$this->Prefix = $Prefix;
+	}
+
+	/**
 	 * @param string $line
 	 * @return void
 	 *

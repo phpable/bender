@@ -35,18 +35,12 @@ class Combinator {
 
 	/**
 	 * @param File $Manifest
-	 * @param Directory $Point
 	 *
 	 * @throws Exception
 	 */
-	public function __construct(File $Manifest, Directory $Point) {
+	public function __construct(File $Manifest) {
 		$this->Stream = $Manifest->toReadingStream();
-
-		if (!$Point->isWritable()) {
-			throw new \Exception(sprintf('The target directory is not writable: %s!', $Point->toString()));
-		}
-
-		$this->Point = $Point;
+		$this->Point = $Manifest->toPath()->getParent()->toDirectory();
 	}
 
 	/**
@@ -146,7 +140,7 @@ class Combinator {
 
 			switch ($line) {
 				case 'register';
-					(new Register($this->Stream))->execute();
+					(new Register($this->Stream, $this->Point))->execute();
 					break;
 				default:
 					throw new \Exception(sprintf('Invalid syntax: %s!', $line));
