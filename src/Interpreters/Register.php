@@ -4,7 +4,7 @@ namespace Able\Bender\Interpreters;
 use \Able\Bender\Utilities\Registry;
 use \Able\Bender\Abstractions\AInterpriter;
 
-use Able\IO\Directory;
+use \Able\IO\Directory;
 use \Able\IO\Path;
 use \Able\IO\ReadingStream;
 
@@ -15,11 +15,6 @@ use \Exception;
 
 class Register
 	extends AInterpriter {
-
-	/**
-	 * @var array
-	 */
-	private array $Paths = [];
 
 	/**
 	 * @var string[]
