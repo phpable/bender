@@ -6,7 +6,7 @@ use \Able\Bender\Abstractions\TTarget;
 
 use \Able\Bender\Utilities\Registry;
 
-use \Able\IO\ReadingStream;
+use \Able\IO\File;
 
 use \Exception;
 use \Generator;
@@ -22,7 +22,7 @@ class Combine
 	 */
 	public function interpretate(string $line): void {
 		foreach ($this->parseTarget($line) as $Target) {
-			$this->input()->consume($Target->toReader());
+			$this->storage()->toWriter()->consume($Target->toReader());
 		}
 	}
 }

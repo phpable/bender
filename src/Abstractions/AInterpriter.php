@@ -77,32 +77,18 @@ abstract class AInterpriter
 	 */
 	public final function storage(): File {
 		if (is_null($this->Storage)) {
+
 			$this->Storage = $this->point()->toPath()->appendRandom()->forceFile();
+			echo sprintf("%s:%s\n", get_class($this), $this->Storage->toString());
 		}
 
 		return $this->Storage;
 	}
 
 	/**
-	 * @return Writer
 	 * @throws Exception
 	 */
-	protected final function input(): Writer {
-		return $this->storage()->toWriter();
-	}
-
-	/**
-	 * @return Reader
-	 * @throws Exception
-	 */
-	protected final function output(): Reader {
-		return $this->storage()->toReader();
-	}
-
-	/**
-	 * @throws Exception
-	 */
-	public function __destruct() {
+	public final function clear() {
 		if (!is_null($this->Storage)) {
 			$this->storage()->remove();
 		}
@@ -120,10 +106,9 @@ abstract class AInterpriter
 			if (class_exists($class = sprintf('%s\\Interpreters\\%s',
 			 	Src::lns(AInterpriter::class, 2), Src::tcm($Parsed[1])))) {
 
-				$Nested = new $class($this->stream(), $this->Point);
-				$Nested->execute();
+				$this->storage()->toWriter()
+					->consume($this->process((new $class($this->stream(), $this->Point))->execute()));
 
-				$this->input()->consume($Nested->output());
 				return true;
 			}
 		}
@@ -132,10 +117,10 @@ abstract class AInterpriter
 	}
 
 	/**
-	 * @return Reader
+	 * @return File
 	 * @throws Exception
 	 */
-	public final function execute(): Reader {
+	public final function execute(): File {
 		while (!is_null($line = $this->stream()->read())) {
 			if (empty($line)) {
 
@@ -164,7 +149,7 @@ abstract class AInterpriter
 			$this->interpretate($line);
 		}
 
-		return $this->output();
+		return $this->storage();
 	}
 
 	/**
@@ -173,5 +158,13 @@ abstract class AInterpriter
 	 */
 	protected function interpretate(string $line): void {
 		throw new \Exception(sprintf('Invalid instruction: %s!', $line));
+	}
+
+	/**
+	 * @param File $File
+	 * @return Reader
+	 */
+	protected function process(File $File): Reader {
+		return $File->toReader();
 	}
 }

@@ -135,10 +135,11 @@ class Combinator {
 				 * and need to be sent to the composer for further processing.
 				 */
 
-				$this->output()->toPath()->append($Matches[1])->forceFile()->purge()
-					->toWriter()->consume((new Combine($this->Stream,
-						$this->teporary()))
-				->execute());
+//				$this->output()->toPath()->append($Matches[1])->forceFile()->purge()
+//					->toWriter()->consume(
+//
+
+				(new Combine($this->Stream, $this->teporary()))->execute();
 
 				continue;
 			}
