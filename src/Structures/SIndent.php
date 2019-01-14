@@ -109,7 +109,7 @@ class SIndent extends AStruct {
 	 * @param string $indent
 	 * @throws Exception
 	 */
-	public final function analize(string $indent): void {
+	public final function parse(string $indent): SIndent {
 		if (preg_match('/[^\t]+/', $indent)) {
 			throw new Exception('Incorrect indentation characters!');
 		}
@@ -128,5 +128,7 @@ class SIndent extends AStruct {
 				$this->level--;
 			}
 		}
+
+		return $this;
  	}
 }

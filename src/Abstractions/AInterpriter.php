@@ -7,17 +7,16 @@ use \Able\IO\Writer;
 use \Able\IO\Reader;
 use \Able\IO\Directory;
 
+use \Able\IO\Abstractions\AStreamReader;
+
 use \Able\IO\ReadingStream;
 use \Able\IO\WritingBuffer;
-
-use \Able\IO\Abstractions\AStreamReader;
 
 use \Able\Reglib\Regex;
 
 use \Able\Bender\Structures\SIndent;
 use \Able\Bender\Utilities\Registry;
 
-use \Able\Bender\Abstractions\TOption;
 use \Able\Bender\Abstractions\TIndent;
 use \Able\Bender\Abstractions\TRegistry;
 
@@ -27,101 +26,22 @@ use \Able\Helpers\Src;
 use \Able\Helpers\Str;
 
 use \Exception;
-use \Generator;
 
 abstract class AInterpriter
 	extends AStreamReader
 
 	implements IExecutable {
 
-	use TOption;
 	use TIndent;
 	use TRegistry;
 
 	/**
-	 * @var Directory
-	 */
-	private Directory $Point;
-
-	/**
-	 * @return Directory
-	 */
-	protected final function point(): Directory {
-		return $this->Point;
-	}
-
-	/**
-	 * @param ReadingStream $Stream
-	 * @param Directory $Point
-	 *
+	 * @return AInterpriter
 	 * @throws Exception
 	 */
-	public function __construct(ReadingStream $Stream, Directory $Point) {
-		parent::__construct($Stream);
-
-		if (!is_writable($Point)) {
-			throw new \Exception(sprintf('Pointed directory is not writable: %s!', $Point));
-		}
-
-		$this->Point = $Point;
-	}
-
-	/**
-	 * @var File|null
-	 */
-	private ?File $Storage = null;
-
-	/**
-	 * @return File
-	 * @throws Exception
-	 */
-	public final function storage(): File {
-		if (is_null($this->Storage)) {
-
-			$this->Storage = $this->point()->toPath()->appendRandom()->forceFile();
-			echo sprintf("%s:%s\n", get_class($this), $this->Storage->toString());
-		}
-
-		return $this->Storage;
-	}
-
-	/**
-	 * @throws Exception
-	 */
-	public final function clear() {
-		if (!is_null($this->Storage)) {
-			$this->storage()->remove();
-		}
-	}
-
-	/**
-	 * @param string $line
-	 * @return bool
-	 *
-	 * @throws Exception
-	 */
-	public final function parseNested(string $line): bool {
-		if (preg_match('/^([A-Za-z0-9_-]+):\s*$/', $line, $Parsed)) {
-
-			if (class_exists($class = sprintf('%s\\Interpreters\\%s',
-			 	Src::lns(AInterpriter::class, 2), Src::tcm($Parsed[1])))) {
-
-				$this->storage()->toWriter()
-					->consume($this->process((new $class($this->stream(), $this->Point))->execute()));
-
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * @return File
-	 * @throws Exception
-	 */
-	public final function execute(): File {
+	public final function execute(): AInterpriter {
 		while (!is_null($line = $this->stream()->read())) {
+
 			if (empty($line)) {
 
 				/**
@@ -130,26 +50,40 @@ abstract class AInterpriter
 				continue;
 			}
 
-			$this->indent()->analize(Regex::create('/^\s+/')
-				->take($line));
+			if (preg_match('/^\s*#+/', $line)) {
 
-			if ($this->indent()->level < 1) {
+				/**
+				 * Lines leading by a hash symbol are recognized
+				 * like a single-line comment and always ignored.
+				 */
+				continue;
+			}
+
+			/**
+			 * If the indentation was decreased,
+			 * the current line has to be returned to the stream.
+			 */
+			if ($this->parseIndention($line)) {
 				$this->stream()->rollback();
 				break;
 			}
 
-			if ($this->parseOption($line = trim($line))) {
-				continue;
-			}
-
-			if ($this->parseNested($line)) {
-				continue;
+			if ($this->analize($line)) {
+				break;
 			}
 
 			$this->interpretate($line);
 		}
 
-		return $this->storage();
+		return $this;
+	}
+
+	/**
+	 * @param string $line
+	 * @return bool
+	 */
+	protected function analize(string $line): bool {
+		return false;
 	}
 
 	/**
@@ -158,13 +92,5 @@ abstract class AInterpriter
 	 */
 	protected function interpretate(string $line): void {
 		throw new \Exception(sprintf('Invalid instruction: %s!', $line));
-	}
-
-	/**
-	 * @param File $File
-	 * @return Reader
-	 */
-	protected function process(File $File): Reader {
-		return $File->toReader();
 	}
 }

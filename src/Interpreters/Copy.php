@@ -1,12 +1,12 @@
 <?php
 namespace Able\Bender\Interpreters;
 
-use \Able\Bender\Abstractions\AInterpriter;
+use \Able\Bender\Abstractions\AStreamable;
 
 use \Generator;
 
 class Copy
-	extends AInterpriter {
+	extends AStreamable {
 
 	public function interpretate(string $line): void {
 		echo sprintf("cp->%s\n", $line);

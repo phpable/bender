@@ -1,7 +1,7 @@
 <?php
 namespace Able\Bender\Interpreters;
 
-use \Able\Bender\Abstractions\AInterpriter;
+use \Able\Bender\Abstractions\AStreamable;
 use \Able\Bender\Abstractions\TTarget;
 
 use \Able\Bender\Utilities\Registry;
@@ -12,7 +12,7 @@ use \Exception;
 use \Generator;
 
 class Combine
-	extends AInterpriter {
+	extends AStreamable {
 
 	use TTarget;
 
@@ -21,6 +21,8 @@ class Combine
 	 * @throws Exception
 	 */
 	public function interpretate(string $line): void {
+		_dumpe($this->registry()->toArray());
+
 		foreach ($this->parseTarget($line) as $Target) {
 			$this->storage()->toWriter()->consume($Target->toReader());
 		}

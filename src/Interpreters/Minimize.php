@@ -1,7 +1,7 @@
 <?php
 namespace Able\Bender\Interpreters;
 
-use \Able\Bender\Abstractions\AInterpriter;
+use \Able\Bender\Abstractions\AStreamable;
 
 use \Able\IO\File;
 use \Able\IO\Reader;
@@ -11,7 +11,7 @@ use \Able\IO\ReadingStream;
 use \Generator;
 
 class Minimize
-	extends AInterpriter {
+	extends AStreamable {
 
 	public final function process(File $File): Reader {
 

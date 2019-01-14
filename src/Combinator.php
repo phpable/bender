@@ -146,10 +146,10 @@ class Combinator {
 
 			switch ($line) {
 				case 'register';
-					(new Register($this->Stream, $this->Point))->execute();
+					(new Register($this->Stream))->execute();
 					break;
 				default:
-					throw new \Exception('Invalid syntax!');
+					throw new \Exception(sprintf('Invalid syntax: %s!', $line));
 			}
 		}
 	}

@@ -1,7 +1,10 @@
 <?php
 namespace Able\Bender\Abstractions;
 
-use Able\Bender\Structures\SIndent;
+use \Able\Bender\Structures\SIndent;
+use \Able\Reglib\Regex;
+
+use \Exception;
 
 trait TIndent {
 
@@ -19,5 +22,17 @@ trait TIndent {
 		}
 
 		return $this->Indent;
+	}
+
+	/**
+	 * @param string $line
+	 * @return bool
+	 *
+	 * @throws Exception
+	 */
+	protected final function parseIndention(string &$line): bool {
+
+		return $this->indent()
+			->parse(Regex::create('/^\s+/')->retrieve($line))->level < 1;
 	}
 }

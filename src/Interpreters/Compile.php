@@ -1,7 +1,7 @@
 <?php
 namespace Able\Bender\Interpreters;
 
-use \Able\Bender\Abstractions\AInterpriter;
+use \Able\Bender\Abstractions\AStreamable;
 use \Able\Bender\Abstractions\TTarget;
 
 use \Able\Bender\Utilities\Registry;
@@ -15,7 +15,7 @@ use \Exception;
 use \Generator;
 
 class Compile
-	extends AInterpriter {
+	extends AStreamable {
 
 	use TTarget;
 
