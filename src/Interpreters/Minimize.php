@@ -14,12 +14,6 @@ class Minimize
 	extends AStreamable {
 
 	public final function process(File $File): Reader {
-
-//		foreach ($Reader->read() as $line) {
-//			echo sprintf("%s\n", $line);
-//		}
-
-
 		return parent::process($File);
 	}
 }

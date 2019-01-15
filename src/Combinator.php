@@ -145,12 +145,8 @@ class Combinator {
 				 * Lines leading by an equal sign are recognized like targets declarations
 				 * and need to be sent to the composer for further processing.
 				 */
-
-//				$this->output()->toPath()->append($Matches[1])->forceFile()->purge()
-//					->toWriter()->consume(
-//
-
-				(new Combine($this->Stream, $this->teporary()))->execute();
+				(new Combine($this->Stream, $this->teporary()))
+					->execute()->toFile()->move($this->output(), $Matches[1]);
 
 				continue;
 			}

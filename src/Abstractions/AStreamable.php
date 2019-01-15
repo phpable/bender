@@ -28,6 +28,9 @@ use \Able\Helpers\Str;
 use \Exception;
 use \Generator;
 
+/**
+ * @method AStreamable execute()
+ */
 abstract class AStreamable
 	extends AInterpriter
 
@@ -135,5 +138,13 @@ abstract class AStreamable
 	 */
 	protected function process(File $File): Reader {
 		return $File->toReader();
+	}
+
+	/**
+	 * @return File
+	 * @throws Exception
+	 */
+	public final function toFile(): File {
+		return $this->storage();
 	}
 }
