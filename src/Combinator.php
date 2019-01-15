@@ -24,24 +24,42 @@ use \Generator;
 class Combinator {
 
 	/**
-	 * @var ReadingStream
-	 */
-	private ReadingStream $Stream;
-
-	/**
 	 * @var Directory
 	 */
-	private Directory $Point;
+	private Directory $Source;
 
 	/**
-	 * @param File $Manifest
+	 * @return Directory
+	 */
+	protected final function source(): Directory {
+		return  $this->Source;
+	}
+
+	/**
+	 * @param Directory $Source
 	 *
 	 * @throws Exception
 	 */
-	public function __construct(File $Manifest) {
-		$this->Stream = $Manifest->toReadingStream();
-		$this->Point = $Manifest->toPath()->getParent()->toDirectory();
+	public function __construct(Directory $Source) {
+		$this->Source = $Source;
 	}
+
+	/**
+	 * @var ReadingStream|null
+	 */
+	private ?ReadingStream $Stream = null;
+
+	/**
+	 * @return ReadingStream
+	 * @throws Exception
+	 */
+	protected final function stream(): ReadingStream {
+		if (is_null($this->Stream)) {
+			$this->Stream = $this->source()->toPath()->append('.bender')->toFile()->toReadingStream();
+		}
+
+		return $this->Stream;
+ 	}
 
 	/**
 	 * @var Directory|null
@@ -52,7 +70,7 @@ class Combinator {
 	 * @return Directory
 	 * @throws Exception
 	 */
-	public final function output(): Directory {
+	protected final function output(): Directory {
 		return !is_null($this->Output) ? $this->Output : (new Path(__DIR__))->toDirectory();
 	}
 
@@ -61,7 +79,7 @@ class Combinator {
 	 * @throws Exception
 	 */
 	protected final function configureOutput(string $value): void {
-		$this->Output = $this->Point->toPath()->append($value)->forceDirectory();
+		$this->Output = $this->source()->toPath()->append($value)->forceDirectory();
 	}
 
 	/**
@@ -73,7 +91,7 @@ class Combinator {
 	 * @return Directory
 	 * @throws Exception
 	 */
-	public final function teporary(): Directory {
+	protected final function teporary(): Directory {
 		return !is_null($this->Temporary) ? $this->Temporary : (new Path(__DIR__))->toDirectory();
 	}
 
@@ -82,15 +100,14 @@ class Combinator {
 	 * @throws Exception
 	 */
 	protected final function configureTemporary(string $value): void {
-		$this->Temporary = $this->Point->toPath()->append($value)->forceDirectory();
+		$this->Temporary = $this->Source->toPath()->append($value)->forceDirectory();
 	}
-
 
 	/**
 	 * @throws Exception
 	 */
 	public function execute() {
-		while (!is_null($line = $this->Stream->read())) {
+		while (!is_null($line = $this->stream()->read())) {
 			if (empty($line)) {
 
 				/**
@@ -140,7 +157,7 @@ class Combinator {
 
 			switch ($line) {
 				case 'register';
-					(new Register($this->Stream, $this->Point))->execute();
+					(new Register($this->Stream, $this->Source))->execute();
 					break;
 				default:
 					throw new \Exception(sprintf('Invalid syntax: %s!', $line));

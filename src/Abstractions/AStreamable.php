@@ -74,9 +74,7 @@ abstract class AStreamable
 	 */
 	public final function storage(): File {
 		if (is_null($this->Storage)) {
-
 			$this->Storage = $this->point()->toPath()->appendRandom()->forceFile();
-			echo sprintf("%s:%s\n", get_class($this), $this->Storage->toString());
 		}
 
 		return $this->Storage;
