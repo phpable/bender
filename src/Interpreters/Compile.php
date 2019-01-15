@@ -47,8 +47,4 @@ class Compile
 			}));
 		}
 	}
-
-	public function finalize(): void {
-		// TODO: Implement finalize() method.
-	}
 }
