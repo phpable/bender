@@ -164,8 +164,6 @@ abstract class AInterpriter
 			$this->interpretate($line);
 		}
 
-		$this->finalize();
-
 		return $this;
 	}
 
@@ -176,9 +174,4 @@ abstract class AInterpriter
 	protected function interpretate(string $line): void {
 		throw new \Exception(sprintf('Invalid instruction: %s!', $line));
 	}
-
-	/**
-	 * @return void
-	 */
-	abstract protected function finalize(): void;
 }

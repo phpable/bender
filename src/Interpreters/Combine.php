@@ -25,8 +25,4 @@ class Combine
 			$this->input()->consume($Target->toReader());
 		}
 	}
-
-	public function finalize(): void {
-		// TODO: Implement finalize() method.
-	}
 }

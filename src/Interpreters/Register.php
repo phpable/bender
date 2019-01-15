@@ -51,9 +51,5 @@ class Register
 
 		$this->registry()->register(Str::join('.', $this->Points), new Path($Parsed[1]));
 	}
-
-	public function finalize(): void {
-		// TODO: Implement finalize() method.
-	}
 }
 
