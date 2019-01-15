@@ -106,7 +106,7 @@ class Combinator {
 	/**
 	 * @throws Exception
 	 */
-	public function execute() {
+	public function execute(): void {
 		while (!is_null($line = $this->stream()->read())) {
 			if (empty($line)) {
 
