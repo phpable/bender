@@ -1,6 +1,7 @@
 <?php
 namespace Able\Bender;
 
+use Able\Bender\Interpreters\Combine;
 use Able\Bender\Utilities\Registry;
 use Able\IO\Directory;
 use \Able\IO\Path;
@@ -133,10 +134,11 @@ class Combinator {
 				 * Lines leading by an equal sign are recognized like targets declarations
 				 * and need to be sent to the composer for further processing.
 				 */
-				(new Composer($this->Stream,
-					$this->teporary(),
-					$this->output()->toPath()->append($Matches[1])->forceFile())
-				)->execute();
+
+				$this->output()->toPath()->append($Matches[1])->forceFile()->purge()
+					->toWriter()->consume((new Combine($this->Stream,
+						$this->teporary()))
+				->execute());
 
 				continue;
 			}

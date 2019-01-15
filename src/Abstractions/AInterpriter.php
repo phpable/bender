@@ -132,10 +132,10 @@ abstract class AInterpriter
 	}
 
 	/**
-	 * @return AInterpriter
+	 * @return Reader
 	 * @throws Exception
 	 */
-	public final function execute(): AInterpriter {
+	public final function execute(): Reader {
 		while (!is_null($line = $this->stream()->read())) {
 			if (empty($line)) {
 
@@ -164,7 +164,7 @@ abstract class AInterpriter
 			$this->interpretate($line);
 		}
 
-		return $this;
+		return $this->output();
 	}
 
 	/**
