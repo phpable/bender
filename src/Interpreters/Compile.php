@@ -20,27 +20,16 @@ class Compile
 	use TTarget;
 
 	/**
-	 * @var Compiler
-	 */
-	private Compiler $Compiler;
-
-	/**
-	 * @param ReadingStream $Stream
-	 * @param Directory $Point
-	 * @throws Exception
-	 */
-	public final function __construct(ReadingStream $Stream, Directory $Point) {
-		parent::__construct($Stream, $Point);
-		$this->Compiler = new Compiler();
-	}
-
-	/**
 	 * @param string $line
 	 * @throws Exception
 	 */
 	public function interpretate(string $line): void {
 		foreach ($this->parseTarget($line) as $Target) {
-			$this->storage()->append($this->Compiler->compile($Target->getContent()));
+
+			$Compiler = new Compiler();
+			$Compiler->addImportPath($Target->toPath()->getParent()->toString());
+
+			$this->storage()->append($Compiler->compile($Target->getContent()));
 		}
 	}
 }
