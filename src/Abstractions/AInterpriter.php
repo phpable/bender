@@ -18,12 +18,10 @@ use \Able\Bender\Structures\SIndent;
 use \Able\Bender\Utilities\Registry;
 
 use \Able\Bender\Abstractions\TIndent;
+use \Able\Bender\Abstractions\TOption;
 use \Able\Bender\Abstractions\TRegistry;
 
 use \Able\Prototypes\IExecutable;
-
-use \Able\Helpers\Src;
-use \Able\Helpers\Str;
 
 use \Exception;
 
@@ -33,6 +31,7 @@ abstract class AInterpriter
 	implements IExecutable {
 
 	use TIndent;
+	use TOption;
 	use TRegistry;
 
 	/**
@@ -105,6 +104,10 @@ abstract class AInterpriter
 			if ($this->parseIndention($line)) {
 				$this->stream()->rollback();
 				break;
+			}
+
+			if ($this->parseOption($line)) {
+				continue;
 			}
 
 			if ($this->analize($line)) {

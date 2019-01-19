@@ -15,7 +15,6 @@ use \Able\Reglib\Regex;
 use \Able\Bender\Structures\SIndent;
 use \Able\Bender\Utilities\Registry;
 
-use \Able\Bender\Abstractions\TOption;
 use \Able\Bender\Abstractions\TIndent;
 use \Able\Bender\Abstractions\TRegistry;
 use \Able\Bender\Abstractions\AInterpriter;
@@ -32,8 +31,6 @@ abstract class AStreamable
 	extends AInterpriter
 
 	implements IExecutable {
-
-	use TOption;
 
 	/**
 	 * @var Directory
@@ -129,7 +126,7 @@ abstract class AStreamable
 	 * @throws Exception
 	 */
 	public final function analize(string $line): bool {
-		return $this->parseOption($line) || $this->parseNested($line);
+		return $this->parseNested($line);
 	}
 
 	/**
