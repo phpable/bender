@@ -28,9 +28,6 @@ use \Able\Helpers\Str;
 use \Exception;
 use \Generator;
 
-/**
- * @method AStreamable execute()
- */
 abstract class AStreamable
 	extends AInterpriter
 
@@ -48,6 +45,20 @@ abstract class AStreamable
 	 */
 	protected final function point(): Directory {
 		return $this->Output;
+	}
+
+	/**
+	 * @var File[]
+	 */
+	private static array $Cache = [];
+
+	/**
+	 * @throws Exception
+	 */
+	public static final function clear(): void {
+		foreach (self::$Cache as $File) {
+			$File->remove();
+		}
 	}
 
 	/**
@@ -78,18 +89,15 @@ abstract class AStreamable
 	public final function storage(): File {
 		if (is_null($this->Storage)) {
 			$this->Storage = $this->point()->toPath()->appendRandom()->forceFile();
+
+			/**
+			 * Storing each created file in the cache
+			 * is required for cleaning purposes.
+			 */
+			array_push(self::$Cache, $this->Storage);
 		}
 
 		return $this->Storage;
-	}
-
-	/**
-	 * @throws Exception
-	 */
-	public final function clear() {
-		if (!is_null($this->Storage)) {
-			$this->storage()->remove();
-		}
 	}
 
 	/**
@@ -135,6 +143,8 @@ abstract class AStreamable
 	/**
 	 * @param File $File
 	 * @return Reader
+	 *
+	 * @throws Exception
 	 */
 	protected function process(File $File): Reader {
 		return $File->toReader();

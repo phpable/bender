@@ -1,9 +1,15 @@
 <?php
 namespace Able\Bender;
 
-use Able\Bender\Interpreters\Combine;
-use Able\Bender\Utilities\Registry;
-use Able\IO\Directory;
+use Able\Bender\Abstractions\AStreamable;
+use \Able\Bender\Utilities\Registry;
+
+use \Able\Bender\Interpreters\Clear;
+use \Able\Bender\Interpreters\Combine;
+use \Able\Bender\Interpreters\Register;
+use \Able\Bender\Interpreters\Composer;
+
+use \Able\IO\Directory;
 use \Able\IO\Path;
 use \Able\IO\File;
 use \Able\IO\Reader;
@@ -12,9 +18,6 @@ use \Able\IO\ReadingStream;
 use \Able\Helpers\Arr;
 
 use \Able\Reglib\Regex;
-
-use \Able\Bender\Interpreters\Register;
-use \Able\Bender\Interpreters\Composer;
 
 use \Able\Bender\Structures\SIndent;
 
@@ -45,6 +48,13 @@ class Combinator {
 	}
 
 	/**
+	 * @throws Exception
+	 */
+	public function __destruct() {
+		AStreamable::clear();
+	}
+
+	/**
 	 * @var ReadingStream|null
 	 */
 	private ?ReadingStream $Stream = null;
@@ -71,7 +81,7 @@ class Combinator {
 	 * @throws Exception
 	 */
 	protected final function output(): Directory {
-		return !is_null($this->Output) ? $this->Output : (new Path(__DIR__))->toDirectory();
+		return !is_null($this->Output) ? $this->Output : $this->source()->toDirectory();
 	}
 
 	/**
@@ -92,7 +102,7 @@ class Combinator {
 	 * @throws Exception
 	 */
 	protected final function teporary(): Directory {
-		return !is_null($this->Temporary) ? $this->Temporary : (new Path(__DIR__))->toDirectory();
+		return !is_null($this->Temporary) ? $this->Temporary : $this->source()->toDirectory();
 	}
 
 	/**
@@ -146,17 +156,23 @@ class Combinator {
 				 * and need to be sent to the composer for further processing.
 				 */
 				(new Combine($this->Stream, $this->teporary()))
-					->execute()->toFile()->move($this->output(), $Matches[1]);
-
+					->execute()->toFile()->copy($f = $this->output()->toPath()->append($Matches[1]), true);
 				continue;
 			}
 
-			switch ($line) {
-				case 'register';
-					(new Register($this->Stream, $this->Source))->execute();
-					break;
-				default:
-					throw new \Exception(sprintf('Invalid syntax: %s!', $line));
+			if (preg_match('/^(' . Regex::RE_KEYWORD . ')\s*(.*)$/', $line, $Matches)) {
+				switch ($Matches[1]) {
+					case 'register';
+						(new Register($this->Stream, $this->Source))
+							->execute();
+						break;
+					case 'clear':
+						(new Clear($this->Stream))
+							->withArguments($Matches[2])->execute();
+						break;
+					default:
+						throw new \Exception(sprintf('Invalid syntax: %s!', $line));
+				}
 			}
 		}
 	}

@@ -36,10 +36,39 @@ abstract class AInterpriter
 	use TRegistry;
 
 	/**
+	 * @var string[]
+	 */
+	private array $Arguments = [];
+
+	/**
+	 * @return string[]
+	 */
+	protected final function getArguments(): array {
+		return $this->Arguments;
+	}
+
+	/**
+	 * @param string $line
+	 * @return AInterpriter
+	 *
+	 * @throws Exception
+	 */
+	public final function withArguments(string $line): AInterpriter {
+		if (!preg_match('/^{([^}]+)}$/', $line, $Matches)) {
+			throw new \Exception(sprintf('Invalid arguments: %s!', $line));
+		}
+
+		$this->Arguments = preg_split('/\s*,+\s*/',
+			$Matches[1], -1 , PREG_SPLIT_NO_EMPTY);
+
+		return $this;
+	}
+
+	/**
 	 * @return AInterpriter
 	 * @throws Exception
 	 */
-	public final function execute(): AInterpriter {
+	public function execute(): AInterpriter {
 		while (!is_null($line = $this->stream()->read())) {
 
 			if (empty($line)) {

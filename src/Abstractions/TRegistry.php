@@ -1,8 +1,10 @@
 <?php
 namespace Able\Bender\Abstractions;
 
-use Able\Bender\Utilities\Registry;
-use Able\IO\Directory;
+use \Able\Bender\Utilities\Registry;
+use \Able\IO\Directory;
+
+use \Exception;
 
 trait TRegistry {
 
@@ -18,6 +20,7 @@ trait TRegistry {
 
 	/**
 	 * @return Registry
+	 * @throws Exception
 	 */
 	protected final function registry(): Registry {
 		if (is_null(static::$Registry)) {
