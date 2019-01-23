@@ -4,7 +4,6 @@ namespace Able\Bender;
 use Able\Bender\Abstractions\AStreamable;
 use \Able\Bender\Utilities\Registry;
 
-use \Able\Bender\Interpreters\Clear;
 use \Able\Bender\Interpreters\Combine;
 use \Able\Bender\Interpreters\Register;
 use \Able\Bender\Interpreters\Composer;
@@ -165,10 +164,6 @@ class Combinator {
 					case 'register';
 						(new Register($this->Stream, $this->Source))
 							->execute();
-						break;
-					case 'clear':
-						(new Clear($this->Stream))
-							->withArguments($Matches[2])->execute();
 						break;
 					default:
 						throw new \Exception(sprintf('Invalid syntax: %s!', $line));
