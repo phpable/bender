@@ -52,7 +52,7 @@ class Combinator {
 	 * @throws Exception
 	 */
 	public function __destruct() {
-		//AStreamable::clear();
+		AStreamable::clear();
 	}
 
 	/**
