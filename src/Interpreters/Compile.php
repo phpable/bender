@@ -40,9 +40,7 @@ class Compile
 	 */
 	public function interpretate(string $line): void {
 		foreach ($this->parseTarget($line) as $Target) {
-
-			$this->storage()->append($this->Compiler
-				->compile($Target->getContent()));
+			$this->storage()->append($this->Compiler->compile($Target->getContent()));
 		}
 	}
 }

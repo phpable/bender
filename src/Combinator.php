@@ -2,6 +2,8 @@
 namespace Able\Bender;
 
 use Able\Bender\Abstractions\AStreamable;
+use Able\Bender\Abstractions\AInterpriter;
+
 use \Able\Bender\Utilities\Registry;
 
 use \Able\Bender\Interpreters\Combine;
@@ -50,7 +52,7 @@ class Combinator {
 	 * @throws Exception
 	 */
 	public function __destruct() {
-		AStreamable::clear();
+		//AStreamable::clear();
 	}
 
 	/**
@@ -148,14 +150,19 @@ class Combinator {
 				continue;
 			}
 
-			if (preg_match('/^=([A-Za-z0-9_]+\.[A-Za-z0-9]+)/', $line, $Matches)) {
+			if (preg_match('/^=([A-Za-z0-9_]+\.([A-Za-z0-9]+))/', $line, $Matches)) {
+				if (!in_array($Matches[2], ['css', 'js'])) {
+					throw new Exception(sprintf('Invalid target type: %s', $Matches[2]));
+				}
+
+				AInterpriter::useContentType($Matches[2]);
 
 				/**
 				 * Lines leading by an equal sign are recognized like targets declarations
 				 * and need to be sent to the composer for further processing.
 				 */
 				(new Combine($this->Stream, $this->teporary()))
-					->execute()->toFile()->copy($f = $this->output()->toPath()->append($Matches[1]), true);
+					->execute()->toFile()->copy($this->output()->toPath()->append($Matches[1]), true);
 				continue;
 			}
 
