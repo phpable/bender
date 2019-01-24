@@ -36,6 +36,45 @@ abstract class AInterpriter
 	use TRegistry;
 
 	/**
+	 * @const string
+	 */
+	public const CT_TEXT = 'text';
+
+	/**
+	 * @const string
+	 */
+	public const CT_JS = 'js';
+
+	/**
+	 * @const string
+	 */
+	public const CT_CSS = 'css';
+
+	/**
+	 * @var string
+	 */
+	private static string $type = self::CT_TEXT;
+
+	/**
+	 * @param string $type
+	 * @throws Exception
+	 */
+	public static final function useContentType(string $type) {
+		if (!in_array($type, [self::CT_TEXT, self::CT_CSS, self::CT_JS])) {
+			throw new Exception(sprintf('Ivalid cotant type: %s', $type));
+		}
+
+		self::$type = $type;
+	}
+
+	/**
+	 * @return string
+	 */
+	protected final function contentType(): string {
+		return self::$type;
+	}
+
+	/**
 	 * @var string[]
 	 */
 	private array $Arguments = [];
@@ -98,7 +137,7 @@ abstract class AInterpriter
 			}
 
 			if ($this->analize($line)) {
-				break;
+				continue;
 			}
 
 			$this->interpretate($line);
