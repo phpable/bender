@@ -41,7 +41,7 @@ class SOption extends AStruct {
 	 * @throws Exception
 	 */
 	public final function parse(string $line): SOption {
-		if (!preg_match('/(^[A-Za-z0-9_-]+)\s*=>\s*(.*)$/', $line, $Parsed)) {
+		if (!preg_match('/(^@[A-Za-z0-9_-]+)\s*=>\s*(.*)$/', $line, $Parsed)) {
 			throw new Exception('Incorrect indentation characters!');
 		}
 
