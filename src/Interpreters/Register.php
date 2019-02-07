@@ -1,11 +1,10 @@
 <?php
 namespace Able\Bender\Interpreters;
 
-use \Able\Bender\Utilities\Registry;
-use \Able\Bender\Abstractions\AInterpriter;
+use \Able\Bender\Abstractions\AExecutable;
 
-use \Able\IO\Directory;
 use \Able\IO\Path;
+use \Able\IO\Directory;
 use \Able\IO\ReadingStream;
 
 use \Able\Helpers\Str;
@@ -14,7 +13,7 @@ use \Able\Helpers\Arr;
 use \Exception;
 
 class Register
-	extends AInterpriter {
+	extends AExecutable {
 
 	/**
 	 * @var string[]

@@ -4,7 +4,7 @@ namespace Able\Bender\Abstractions;
 use \Generator;
 use \Exception;
 
-trait TTarget {
+trait TTargetable  {
 
 	/**
 	 * @param string $line
@@ -12,7 +12,7 @@ trait TTarget {
 	 *
 	 * @throws Exception
 	 */
-	public final function parseTarget(string $line): Generator {
+	public final function targets(string $line): Generator {
 		if (!preg_match('/^&([A-Za-z0-9_.-]+){([^}]+)}$/', $line, $Matches)) {
 			throw new Exception(sprintf('Invalid target: %s!', $line));
 		}

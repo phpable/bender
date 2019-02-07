@@ -2,34 +2,55 @@
 namespace Able\Bender\Interpreters;
 
 use \Able\Bender\Abstractions\AStreamable;
-use \Able\Bender\Abstractions\TTarget;
+use \Able\Bender\Abstractions\TTargetable;
 
-use \Able\Bender\Utilities\Registry;
+use \Able\Bender\Compilers\SassCompiler;
 
-use \Able\IO\Directory;
-use \Able\IO\ReadingStream;
-
-use \ScssPhp\ScssPhp\Compiler;
+use \Able\Helpers\Arr;
 
 use \Exception;
 use \Generator;
 
-class Compile
+final class Compile
 	extends AStreamable {
 
-	use TTarget;
+	use TTargetable;
+
+	/**
+	 * @var array
+	 */
+	private static array $Bindings = [];
+
+	/**
+	 * @param string $extension
+	 * @param string $compiler
+	 *
+	 * @throws Exception
+	 */
+	public static function bind(string $extension, string $compiler): void {
+		if (!preg_match('/^[A-Za-z0-9_-]{1,5}$/', $extension)) {
+			throw new Exception(sprintf('Invalid extendions: %s!', $extension));
+		}
+
+		static::$Bindings[strtolower($extension)] = $compiler;
+	}
 
 	/**
 	 * @param string $line
 	 * @throws Exception
 	 */
 	public function interpretate(string $line): void {
-		foreach ($this->parseTarget($line) as $Target) {
+		foreach ($this->targets($line) as $Target) {
 
-			$Compiler = new Compiler();
-			$Compiler->addImportPath($Target->toPath()->getParent()->toString());
+			if (is_null($compiler = Arr::get(static::$Bindings, $Target->getExtension()))) {
+				throw new Exception(sprintf('Unsupported target type: %s!', $Target->toString()));
+			}
 
-			$this->storage()->append($Compiler->compile($Target->getContent()));
+			$this->storage()
+				->toWriter()->consume((new $compiler)->compile($Target));
+
 		}
 	}
 }
+
+Compile::bind('scss', SassCompiler::class);

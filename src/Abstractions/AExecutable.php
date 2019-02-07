@@ -1,38 +1,27 @@
 <?php
 namespace Able\Bender\Abstractions;
 
-use \Able\IO\Path;
-use \Able\IO\File;
-use \Able\IO\Writer;
-use \Able\IO\Reader;
-use \Able\IO\Directory;
-
 use \Able\IO\Abstractions\AStreamReader;
 
-use \Able\IO\ReadingStream;
-use \Able\IO\WritingBuffer;
-
-use \Able\Reglib\Regex;
-
-use \Able\Bender\Structures\SIndent;
-use \Able\Bender\Utilities\Registry;
+use \Able\Prototypes\TTraitable;
+use \Able\Prototypes\IExecutable;
 
 use \Able\Bender\Abstractions\TIndent;
 use \Able\Bender\Abstractions\TOption;
 use \Able\Bender\Abstractions\TRegistry;
 
-use \Able\Prototypes\IExecutable;
-
 use \Exception;
 
-abstract class AInterpriter
+abstract class AExecutable
 	extends AStreamReader
 
 	implements IExecutable {
 
-	use TIndent;
-	use TOption;
+	use TTraitable;
 	use TRegistry;
+	use TIndent;
+
+	use TOption;
 
 	/**
 	 * @const string
@@ -74,10 +63,10 @@ abstract class AInterpriter
 	}
 
 	/**
-	 * @return AInterpriter
+	 * @return AExecutable
 	 * @throws Exception
 	 */
-	public function execute(): AInterpriter {
+	public function execute(): AExecutable {
 		while (!is_null($line = $this->stream()->read())) {
 
 			if (empty($line)) {
@@ -99,21 +88,25 @@ abstract class AInterpriter
 
 			/**
 			 * If the indentation was decreased,
-			 * the current line has to be returned to the stream.
+			 * the current line must be released back to the stream.
 			 */
-			if ($this->parseIndention($line)) {
+			if ($this->analizeIndention($line)) {
 				$this->stream()->rollback();
 				break;
 			}
 
-			if ($this->parseOption($line)) {
+			/**
+			 * Traits could extend the standard behavior
+			 * via the special traitable interface.
+			 */
+			if ($this->parseTraits($line)) {
 				continue;
 			}
 
-			if ($this->analize($line)) {
-				continue;
-			}
-
+			/**
+			 * Any line that passed through the conditions
+			 * must be sent for further interpretation.
+			 */
 			$this->interpretate($line);
 		}
 
@@ -123,8 +116,20 @@ abstract class AInterpriter
 	/**
 	 * @param string $line
 	 * @return bool
+	 *
+	 * @throws Exception
 	 */
-	protected function analize(string $line): bool {
+	protected final function parseTraits(string $line): bool {
+		foreach ($this->propagate('parse', $line) as $_ => $value) {
+			if (!is_bool($value)) {
+				throw new Exception(sprintf('Unsupported behavior: %s!', $_));
+			}
+
+			if ($value) {
+				return true;
+			}
+		}
+
 		return false;
 	}
 

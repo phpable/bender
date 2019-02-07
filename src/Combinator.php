@@ -2,7 +2,7 @@
 namespace Able\Bender;
 
 use Able\Bender\Abstractions\AStreamable;
-use Able\Bender\Abstractions\AInterpriter;
+use Able\Bender\Abstractions\AExecutable;
 
 use \Able\Bender\Utilities\Registry;
 
@@ -155,7 +155,7 @@ class Combinator {
 					throw new Exception(sprintf('Invalid target type: %s', $Matches[2]));
 				}
 
-				AInterpriter::useContentType($Matches[2]);
+				AExecutable::useContentType($Matches[2]);
 
 				/**
 				 * Lines leading by an equal sign are recognized like targets declarations

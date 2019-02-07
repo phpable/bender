@@ -30,7 +30,7 @@ trait TIndent {
 	 *
 	 * @throws Exception
 	 */
-	protected final function parseIndention(string &$line): bool {
+	protected final function analizeIndention(string &$line): bool {
 
 		return $this->indent()
 			->parse(Regex::create('/^\s+/')->retrieve($line))->level < 1;

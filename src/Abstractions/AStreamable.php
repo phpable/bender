@@ -15,11 +15,9 @@ use \Able\Reglib\Regex;
 use \Able\Bender\Structures\SIndent;
 use \Able\Bender\Utilities\Registry;
 
-use \Able\Bender\Abstractions\TIndent;
-use \Able\Bender\Abstractions\TRegistry;
-use \Able\Bender\Abstractions\AInterpriter;
+use \Able\Bender\Abstractions\TNested;
+use \Able\Bender\Abstractions\AExecutable;
 
-use \Able\Prototypes\IExecutable;
 
 use \Able\Helpers\Src;
 use \Able\Helpers\Str;
@@ -28,9 +26,9 @@ use \Exception;
 use \Generator;
 
 abstract class AStreamable
-	extends AInterpriter
+	extends AExecutable {
 
-	implements IExecutable {
+	use TNested;
 
 	/**
 	 * @var Directory
@@ -68,7 +66,7 @@ abstract class AStreamable
 		parent::__construct($Stream);
 
 		if (!is_writable($Output)) {
-			throw new \Exception(sprintf('Pointed directory is not writable: %s!', $Output));
+			throw new \Exception(sprintf('Directory is not writable: %s!', $Output));
 		}
 
 		$this->Output = $Output;
@@ -95,46 +93,6 @@ abstract class AStreamable
 		}
 
 		return $this->Storage;
-	}
-
-	/**
-	 * @param string $line
-	 * @return bool
-	 *
-	 * @throws Exception
-	 */
-	public final function parseNested(string $line): bool {
-		if (preg_match('/^([A-Za-z0-9_-]+):\s*$/', $line, $Parsed)) {
-
-			if (class_exists($class = sprintf('%s\\Interpreters\\%s',
-			 	Src::lns(AStreamable::class, 2), Src::tcm($Parsed[1])))) {
-
-				$this->storage()->toWriter()
-					->consume($this->process((new $class($this->stream(), $this->Output))->execute()->storage()));
-
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * @param string $line
-	 * @return bool
-	 *
-	 * @throws Exception
-	 */
-	public final function analize(string $line): bool {
-		return $this->parseNested($line);
-	}
-
-	/**
-	 * @param string $line
-	 * @throws Exception
-	 */
-	protected function interpretate(string $line): void {
-		throw new \Exception(sprintf('Invalid instruction: %s!', $line));
 	}
 
 	/**
