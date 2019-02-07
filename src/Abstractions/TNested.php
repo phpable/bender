@@ -17,9 +17,7 @@ trait TNested {
 			if (class_exists($class = sprintf('%s\\Interpreters\\%s',
 			 	Src::lns(AStreamable::class, 2), Src::tcm($Parsed[1])))) {
 
-				$this->storage()->toWriter()
-					->consume($this->process((new $class($this->stream(), $this->Output))->execute()->storage()));
-
+				$this->consume($this->process((new $class($this->stream(), $this->Output))->execute()->toFile()));
 				return true;
 			}
 		}

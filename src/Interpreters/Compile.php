@@ -46,9 +46,7 @@ final class Compile
 				throw new Exception(sprintf('Unsupported target type: %s!', $Target->toString()));
 			}
 
-			$this->storage()
-				->toWriter()->consume((new $compiler)->compile($Target));
-
+			$this->consume((new $compiler)->compile($Target));
 		}
 	}
 }

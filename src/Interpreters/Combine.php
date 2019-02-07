@@ -24,7 +24,7 @@ class Combine
 	 */
 	public function interpretate(string $line): void {
 		foreach ($this->targets($line) as $Target) {
-			$this->storage()->toWriter()->consume($Target->toReader());
+			$this->consume($Target->toReader());
 		}
 	}
 }

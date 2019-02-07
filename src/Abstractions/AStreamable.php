@@ -1,6 +1,7 @@
 <?php
 namespace Able\Bender\Abstractions;
 
+use Able\IO\Abstractions\IReader;
 use \Able\IO\Path;
 use \Able\IO\File;
 use \Able\IO\Writer;
@@ -78,10 +79,10 @@ abstract class AStreamable
 	private ?File $Storage = null;
 
 	/**
-	 * @return File
+	 * @param IReader $Stream
 	 * @throws Exception
 	 */
-	public final function storage(): File {
+	protected final function consume(IReader $Stream): void {
 		if (is_null($this->Storage)) {
 			$this->Storage = $this->point()->toPath()->appendRandom()->forceFile();
 
@@ -92,7 +93,7 @@ abstract class AStreamable
 			array_push(self::$Cache, $this->Storage);
 		}
 
-		return $this->Storage;
+		$this->Storage->toWriter()->consume($Stream);
 	}
 
 	/**
@@ -110,6 +111,6 @@ abstract class AStreamable
 	 * @throws Exception
 	 */
 	public final function toFile(): File {
-		return $this->storage();
+		return $this->Storage;
 	}
 }
