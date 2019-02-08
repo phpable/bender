@@ -116,7 +116,7 @@ abstract class AExecutable
 	 * @throws Exception
 	 */
 	protected final function parseTraits(string $line): ?Generator {
-		foreach ($this->propagate('parse', $line) as $_ => $value) {
+		foreach ($this->propagate('parse', $line) as $value) {
 			if (is_bool($value) && $value) {
 				break;
 			}
