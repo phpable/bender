@@ -49,13 +49,6 @@ class Combinator {
 	}
 
 	/**
-	 * @throws Exception
-	 */
-	public function __destruct() {
-		AStreamable::clear();
-	}
-
-	/**
 	 * @var ReadingStream|null
 	 */
 	private ?ReadingStream $Stream = null;
@@ -161,8 +154,11 @@ class Combinator {
 				 * Lines leading by an equal sign are recognized like targets declarations
 				 * and need to be sent to the composer for further processing.
 				 */
-				(new Combine($this->Stream, $this->teporary()))
-					->execute()->toFile()->copy($this->output()->toPath()->append($Matches[1]), true);
+//				(new Combine($this->Stream, $this->teporary()))
+//					->execute()->toFile()->copy($this->output()->toPath()->append($Matches[1]), true);
+
+				$this->output()->toPath()->append($Matches[1])
+					->forceFile()->purge()->toWriter()->write((new Combine($this->Stream, $this->teporary()))->execute());
 				continue;
 			}
 
@@ -170,7 +166,7 @@ class Combinator {
 				switch ($Matches[1]) {
 					case 'register';
 						(new Register($this->Stream, $this->Source))
-							->execute();
+							->execute()->getReturn();
 						break;
 					default:
 						throw new \Exception(sprintf('Invalid syntax: %s!', $line));

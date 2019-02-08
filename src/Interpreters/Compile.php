@@ -1,8 +1,10 @@
 <?php
 namespace Able\Bender\Interpreters;
 
-use \Able\Bender\Abstractions\AStreamable;
+use \Able\Bender\Abstractions\TNested;
+use \Able\Bender\Abstractions\AExecutable;
 use \Able\Bender\Abstractions\TTargetable;
+use \Able\Bender\Abstractions\TInterpretatable;
 
 use \Able\Bender\Compilers\SassCompiler;
 
@@ -12,9 +14,11 @@ use \Exception;
 use \Generator;
 
 final class Compile
-	extends AStreamable {
+	extends AExecutable {
 
+	use TNested;
 	use TTargetable;
+	use TInterpretatable;
 
 	/**
 	 * @var array
@@ -37,16 +41,18 @@ final class Compile
 
 	/**
 	 * @param string $line
+	 * @return Generator
+	 *
 	 * @throws Exception
 	 */
-	public function interpretate(string $line): void {
+	protected final function parseInterpretatable(string $line): Generator {
 		foreach ($this->targets($line) as $Target) {
 
 			if (is_null($compiler = Arr::get(static::$Bindings, $Target->getExtension()))) {
 				throw new Exception(sprintf('Unsupported target type: %s!', $Target->toString()));
 			}
 
-			$this->consume((new $compiler)->compile($Target));
+			yield from (new $compiler)->compile($Target)->read();
 		}
 	}
 }

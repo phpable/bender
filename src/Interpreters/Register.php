@@ -2,6 +2,7 @@
 namespace Able\Bender\Interpreters;
 
 use \Able\Bender\Abstractions\AExecutable;
+use \Able\Bender\Abstractions\TInterpretatable;
 
 use \Able\IO\Path;
 use \Able\IO\Directory;
@@ -11,9 +12,12 @@ use \Able\Helpers\Str;
 use \Able\Helpers\Arr;
 
 use \Exception;
+use \Generator;
 
 class Register
 	extends AExecutable {
+
+	use TInterpretatable;
 
 	/**
 	 * @var string[]
@@ -42,7 +46,7 @@ class Register
 	 *
 	 * @throws Exception
 	 */
-	protected final function interpretate(string $line): void {
+	protected final function parseInterpretatable(string $line): void {
 		if (!preg_match('/^(.*)\s+as\s+([A-Za-z0-9_-]+)$/', $line, $Parsed)) {
 			throw new \Exception(sprintf('Invalid format: %s!', $line));
 		}

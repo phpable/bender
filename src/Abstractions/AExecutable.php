@@ -11,6 +11,7 @@ use \Able\Bender\Abstractions\TOption;
 use \Able\Bender\Abstractions\TRegistry;
 
 use \Exception;
+use \Generator;
 
 abstract class AExecutable
 	extends AStreamReader
@@ -63,10 +64,15 @@ abstract class AExecutable
 	}
 
 	/**
-	 * @return AExecutable
+	 * @var Generator[];
+	 */
+	private array $Content = [];
+
+	/**
+	 * @return Generator
 	 * @throws Exception
 	 */
-	public function execute(): AExecutable {
+	public final function execute(): \Generator {
 		while (!is_null($line = $this->stream()->read())) {
 
 			if (empty($line)) {
@@ -99,45 +105,33 @@ abstract class AExecutable
 			 * Traits could extend the standard behavior
 			 * via the special traitable interface.
 			 */
-			if ($this->parseTraits($line)) {
-				continue;
-			}
-
-			/**
-			 * Any line that passed through the conditions
-			 * must be sent for further interpretation.
-			 */
-			$this->interpretate($line);
+			yield from $this->parseTraits($line);
 		}
-
-		return $this;
 	}
 
 	/**
 	 * @param string $line
-	 * @return bool
+	 * @return Generator|null
 	 *
 	 * @throws Exception
 	 */
-	protected final function parseTraits(string $line): bool {
+	protected final function parseTraits(string $line): ?Generator {
 		foreach ($this->propagate('parse', $line) as $_ => $value) {
-			if (!is_bool($value)) {
-				throw new Exception(sprintf('Unsupported behavior: %s!', $_));
+			if (is_bool($value) && $value) {
+				break;
 			}
 
-			if ($value) {
-				return true;
+			if ($value instanceof Generator) {
+				yield from $this->process($value);
 			}
 		}
-
-		return false;
 	}
 
 	/**
-	 * @param string $line
-	 * @throws Exception
+	 * @param Generator $Stream
+	 * @return Generator
 	 */
-	protected function interpretate(string $line): void {
-		throw new \Exception(sprintf('Invalid instruction: %s!', $line));
+	protected function process(Generator $Stream): Generator {
+		yield from $Stream;
 	}
 }

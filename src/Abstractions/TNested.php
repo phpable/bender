@@ -7,21 +7,18 @@ trait TNested {
 
 	/**
 	 * @param string $line
-	 * @return bool
+	 * @return mixed
 	 *
 	 * @throws Exception
 	 */
-	public final function parseNested(string $line): bool {
+	public final function parseNested(string $line) {
 		if (preg_match('/^([A-Za-z0-9_-]+):\s*$/', $line, $Parsed)) {
 
 			if (class_exists($class = sprintf('%s\\Interpreters\\%s',
 			 	Src::lns(AStreamable::class, 2), Src::tcm($Parsed[1])))) {
 
-				$this->consume($this->process((new $class($this->stream(), $this->Output))->execute()->toFile()));
-				return true;
+				return (new $class($this->stream()))->execute();
 			}
 		}
-
-		return false;
 	}
 }

@@ -2,9 +2,8 @@
 namespace Able\Bender\Interpreters;
 
 use \Able\Bender\Abstractions\AExecutable;
-
-use \Able\Bender\Abstractions\AStreamable;
 use \Able\Bender\Abstractions\TTargetable;
+use \Able\Bender\Abstractions\TNested;
 
 use \Able\Bender\Utilities\Registry;
 
@@ -14,17 +13,20 @@ use \Exception;
 use \Generator;
 
 class Combine
-	extends AStreamable {
+	extends AExecutable {
 
+	use TNested;
 	use TTargetable;
 
 	/**
 	 * @param string $line
+	 * @return Generator|null
+	 *
 	 * @throws Exception
 	 */
-	public function interpretate(string $line): void {
+	public function interpretate(string $line): ?Generator {
 		foreach ($this->targets($line) as $Target) {
-			$this->consume($Target->toReader());
+			yield from $Target->toReader()->read();
 		}
 	}
 }
