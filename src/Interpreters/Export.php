@@ -14,7 +14,7 @@ use \Able\Helpers\Arr;
 use \Exception;
 use \Generator;
 
-class Register
+class Export
 	extends AExecutable {
 
 	use TInterpretatable;
@@ -31,22 +31,22 @@ class Register
 	 * @throws Exception
 	 */
 	public final function __construct(ReadingStream $Stream, Directory $Prefix) {
-		parent::__construct($Stream);
-
 		if (!$Prefix->isWritable()) {
 			throw new Exception(sprintf('The prefix directory is not writable: %s!', $Prefix));
 		}
 
 		$this->Prefix = $Prefix;
+
+		parent::__construct($Stream);
 	}
 
 	/**
 	 * @param string $line
-	 * @return void
+	 * @return bool
 	 *
 	 * @throws Exception
 	 */
-	protected final function parseInterpretatable(string $line): void {
+	protected final function parseInterpretatable(string $line): bool {
 		if (!preg_match('/^(.*)\s+as\s+([A-Za-z0-9_-]+)$/', $line, $Parsed)) {
 			throw new \Exception(sprintf('Invalid format: %s!', $line));
 		}
@@ -63,7 +63,10 @@ class Register
 			$this->Points = Arr::push(Arr::cut($this->Points), $Parsed[2]);
 		}
 
-		$this->registry()->register(Str::join('.', $this->Points), new Path($Parsed[1]));
+		$this->registry()
+			->register(Str::join('.', $this->Points), new Path($Parsed[1]));
+
+		return true;
 	}
 }
 

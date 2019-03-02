@@ -41,19 +41,21 @@ final class Compile
 
 	/**
 	 * @param string $line
-	 * @return Generator
+	 * @return bool
 	 *
 	 * @throws Exception
 	 */
-	protected final function parseInterpretatable(string $line): Generator {
+	protected final function parseInterpretatable(string $line): bool {
 		foreach ($this->targets($line) as $Target) {
 
 			if (is_null($compiler = Arr::get(static::$Bindings, $Target->getExtension()))) {
 				throw new Exception(sprintf('Unsupported target type: %s!', $Target->toString()));
 			}
 
-			yield from (new $compiler)->compile($Target)->read();
+			array_push($this->Stack, (new $compiler)->compile($Target)->read());
 		}
+
+		return true;
 	}
 }
 

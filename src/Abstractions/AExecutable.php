@@ -1,6 +1,8 @@
 <?php
 namespace Able\Bender\Abstractions;
 
+use \Able\IO\File;
+use \Able\IO\ReadingStream;
 use \Able\IO\Abstractions\AStreamReader;
 
 use \Able\Prototypes\TTraitable;
@@ -9,6 +11,8 @@ use \Able\Prototypes\IExecutable;
 use \Able\Bender\Abstractions\TIndent;
 use \Able\Bender\Abstractions\TOption;
 use \Able\Bender\Abstractions\TRegistry;
+
+use \Able\Helpers\Src;
 
 use \Exception;
 use \Generator;
@@ -50,7 +54,7 @@ abstract class AExecutable
 	 */
 	public static final function useContentType(string $type) {
 		if (!in_array($type, [self::CT_TEXT, self::CT_CSS, self::CT_JS])) {
-			throw new Exception(sprintf('Ivalid cotant type: %s', $type));
+			throw new Exception(sprintf('Ivalid cotant type: %s!', $type));
 		}
 
 		self::$type = $type;
@@ -64,15 +68,17 @@ abstract class AExecutable
 	}
 
 	/**
-	 * @var Generator[];
+	 * @var array
 	 */
-	private array $Content = [];
+	protected array $Stack = [];
 
 	/**
-	 * @return Generator
+	 * @param ReadingStream $Stream
 	 * @throws Exception
 	 */
-	public final function execute(): \Generator {
+	public function __construct(ReadingStream $Stream) {
+		parent::__construct($Stream);
+
 		while (!is_null($line = $this->stream()->read())) {
 
 			if (empty($line)) {
@@ -101,37 +107,37 @@ abstract class AExecutable
 				break;
 			}
 
-			/**
-			 * Traits could extend the standard behavior
-			 * via the special traitable interface.
-			 */
-			yield from $this->parseTraits($line);
+			if ($this->parseTraits($line)) {
+				continue;
+			}
+
+			throw new Exception(sprintf('unsupported command: %s', $line));
+		}
+	}
+
+	/**
+	 * @return Generator
+	 * @throws Exception
+	 */
+	public final function execute(): Generator {
+		foreach ($this->Stack as $Propagated) {
+			yield from $Propagated;
 		}
 	}
 
 	/**
 	 * @param string $line
-	 * @return Generator|null
+	 * @return bool
 	 *
 	 * @throws Exception
 	 */
-	protected final function parseTraits(string $line): ?Generator {
-		foreach ($this->propagate('parse', $line) as $value) {
+	protected final function parseTraits(string $line): bool {
+		foreach ($this->propagate('parse', $line) as $_ => $value) {
 			if (is_bool($value) && $value) {
-				break;
-			}
-
-			if ($value instanceof Generator) {
-				yield from $this->process($value);
+				return true;
 			}
 		}
-	}
 
-	/**
-	 * @param Generator $Stream
-	 * @return Generator
-	 */
-	protected function process(Generator $Stream): Generator {
-		yield from $Stream;
+		return false;
 	}
 }

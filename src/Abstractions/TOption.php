@@ -24,6 +24,7 @@ trait TOption {
 	/**
 	 * @param string $line
 	 * @return bool
+	 *
 	 * @throws Exception
 	 */
 	protected final function parseOption(string $line): bool {

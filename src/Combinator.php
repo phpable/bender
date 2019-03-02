@@ -7,7 +7,7 @@ use Able\Bender\Abstractions\AExecutable;
 use \Able\Bender\Utilities\Registry;
 
 use \Able\Bender\Interpreters\Combine;
-use \Able\Bender\Interpreters\Register;
+use \Able\Bender\Interpreters\Export;
 use \Able\Bender\Interpreters\Composer;
 
 use \Able\IO\Directory;
@@ -59,7 +59,9 @@ class Combinator {
 	 */
 	protected final function stream(): ReadingStream {
 		if (is_null($this->Stream)) {
-			$this->Stream = $this->source()->toPath()->append('.bender')->toFile()->toReadingStream();
+
+			$this->Stream = $this->source()
+				->toPath()->append('.bender')->toFile()->toReadingStream();
 		}
 
 		return $this->Stream;
@@ -75,7 +77,7 @@ class Combinator {
 	 * @throws Exception
 	 */
 	protected final function output(): Directory {
-		return !is_null($this->Output) ? $this->Output : $this->source()->toDirectory();
+		return !is_null($this->Output) ? $this->Output : $this->source();
 	}
 
 	/**
@@ -83,28 +85,8 @@ class Combinator {
 	 * @throws Exception
 	 */
 	protected final function configureOutput(string $value): void {
-		$this->Output = $this->source()->toPath()->append($value)->forceDirectory();
-	}
-
-	/**
-	 * @var Directory|null
-	 */
-	private ?Directory $Temporary = null;
-
-	/**
-	 * @return Directory
-	 * @throws Exception
-	 */
-	protected final function teporary(): Directory {
-		return !is_null($this->Temporary) ? $this->Temporary : $this->source()->toDirectory();
-	}
-
-	/**
-	 * @param string $value
-	 * @throws Exception
-	 */
-	protected final function configureTemporary(string $value): void {
-		$this->Temporary = $this->Source->toPath()->append($value)->forceDirectory();
+		$this->Output = $this->source()
+			->toPath()->append($value)->forceDirectory();
 	}
 
 	/**
@@ -112,6 +94,7 @@ class Combinator {
 	 */
 	public function execute(): void {
 		while (!is_null($line = $this->stream()->read())) {
+
 			if (empty($line)) {
 
 				/**
@@ -154,19 +137,19 @@ class Combinator {
 				 * Lines leading by an equal sign are recognized like targets declarations
 				 * and need to be sent to the composer for further processing.
 				 */
-//				(new Combine($this->Stream, $this->teporary()))
-//					->execute()->toFile()->copy($this->output()->toPath()->append($Matches[1]), true);
-
 				$this->output()->toPath()->append($Matches[1])
-					->forceFile()->purge()->toWriter()->write((new Combine($this->Stream, $this->teporary()))->execute());
+					->forceFile()->purge()
+					->toWriter()->write((new Combine($this->Stream))->execute());
+
 				continue;
 			}
 
-			if (preg_match('/^(' . Regex::RE_KEYWORD . ')\s*(.*)$/', $line, $Matches)) {
+			if (preg_match('/^(' . Regex::RE_KEYWORD . ')\s*:?\s*$/', $line, $Matches)) {
 				switch ($Matches[1]) {
-					case 'register';
-						(new Register($this->Stream, $this->Source))
-							->execute()->getReturn();
+					case 'export';
+						(new Export($this->Stream, $this->Source))
+							->execute();
+
 						break;
 					default:
 						throw new \Exception(sprintf('Invalid syntax: %s!', $line));

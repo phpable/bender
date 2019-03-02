@@ -12,9 +12,11 @@ trait TTargetable  {
 	 *
 	 * @throws Exception
 	 */
-	public final function targets(string $line): Generator {
-		if (!preg_match('/^&([A-Za-z0-9_.-]+){([^}]+)}$/', $line, $Matches)) {
-			throw new Exception(sprintf('Invalid target: %s!', $line));
+	protected final function targets(string $line): Generator {
+		if (!preg_match('/^&([A-Za-z0-9_.-]+){([^}]+)}$/',
+			$line, $Matches)) {
+
+				throw new Exception(sprintf('Invalid target: %s', $Matches[1]));
 		}
 
 		if (is_null($Path = $this->registry()->search($Matches[1]))

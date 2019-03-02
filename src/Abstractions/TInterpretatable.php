@@ -5,7 +5,7 @@ trait TInterpretatable {
 
 	/**
 	 * @param string $line
-	 * @return mixed
+	 * @return bool
 	 */
-	abstract protected function parseInterpretatable(string $line);
+	abstract protected function parseInterpretatable(string $line): bool;
 }
