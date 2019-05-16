@@ -1,7 +1,7 @@
 {
-	"name": "able/deadfish",
+	"name": "able/bender",
 	"type": "library",
-	"keywords": ["phpable", "deadfish"],
+	"keywords": ["phpable", "bender"],
 	"description": "phpABLE resource compiler",
 	"license": "MIT",
 	"authors": [
@@ -12,11 +12,17 @@
 	],
 	"require": {
 		"php": ">=7.2.0",
-		"able/statics": "dev-master"
+		"able/statics": "dev-master",
+		"able/prototypes": "dev-master",
+		"able/helpers": "dev-master",
+		"able/exceptions": "dev-master",
+		"able/io": "dev-master"
 	},
 	"autoload": {
 		"psr-4": {
-			"Able\\Facades\\": "src/"
+			"Able\\Bender\\": "src/"
 		}
-	}
+	},
+	"minimum-stability": "dev",
+	"prefer-stable": true
 }
