@@ -1,7 +1,7 @@
 {
 	"name": "able/bender",
 	"type": "library",
-	"keywords": ["phpable", "bender"],
+	"keywords": ["phpable", "bender", "compiler"],
 	"description": "phpABLE resource compiler",
 	"license": "MIT",
 	"authors": [
