@@ -12,10 +12,10 @@
 	],
 	"require": {
 		"php": ">=7.2.0",
-		"able/statics": "dev-master",
-		"able/prototypes": "^1.1.0",
-		"able/helpers": "dev-master",
-		"able/exceptions": "dev-master",
+		"able/statics": "^1.1.1",
+		"able/prototypes": "^1.1.1",
+		"able/helpers": "^v0.8.3",
+		"able/exceptions": "^0.7.4",
 		"able/io": "dev-master",
 		"scssphp/scssphp": "^1.8.1"
 	},
