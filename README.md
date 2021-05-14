@@ -3,7 +3,7 @@ The phpABLE resources combinator.
 
 ## Requirements
 * PHP >= 7.2.0
-* [able/bender](https://github.com/phpable/statics)
+* [able/static](https://github.com/phpable/static)
 
 ## Install
 There's a simple way to install ```able/bender``` into your project via [Composer](http://getcomposer.org):

@@ -12,11 +12,11 @@
 	],
 	"require": {
 		"php": ">=7.2.0",
-		"able/statics": "^1.1.1",
+		"able/statics": "^1.1.2",
 		"able/prototypes": "^1.1.1",
-		"able/helpers": "^v0.8.3",
+		"able/helpers": "^0.8.7",
 		"able/exceptions": "^0.7.4",
-		"able/io": "dev-master",
+		"able/io": "^0.9.1",
 		"scssphp/scssphp": "^1.8.1"
 	},
 	"autoload": {
