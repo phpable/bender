@@ -121,6 +121,8 @@ abstract class AExecutable
 	 */
 	public final function execute(): Generator {
 		foreach ($this->Stack as $Propagated) {
+			echo ".";
+
 			yield from $Propagated;
 		}
 	}
