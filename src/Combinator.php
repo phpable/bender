@@ -130,6 +130,7 @@ class Combinator {
 				}
 
 				AExecutable::useContentType($Matches[2]);
+				echo sprintf("=> %s.%s\n", $Matches[1], $Matches[2]);
 
 				/**
 				 * Lines leading by an equal sign are recognized like targets declarations
@@ -139,6 +140,7 @@ class Combinator {
 					->forceFile()->purge()
 					->toWriter()->write((new Combine($this->Stream))->execute());
 
+				echo "\n";
 				continue;
 			}
 
