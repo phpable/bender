@@ -4,24 +4,16 @@ namespace Able\Bender;
 use Able\Bender\Abstractions\AStreamable;
 use Able\Bender\Abstractions\AExecutable;
 
-use \Able\Bender\Utilities\Registry;
-
 use \Able\Bender\Interpreters\Combine;
 use \Able\Bender\Interpreters\Export;
 use \Able\Bender\Interpreters\Composer;
 
 use \Able\IO\Directory;
-use \Able\IO\Path;
-use \Able\IO\File;
-use \Able\IO\Reader;
 use \Able\IO\ReadingStream;
-
-use \Able\Helpers\Arr;
 
 use \Able\Reglib\Regex;
 
 use \Exception;
-use \Generator;
 
 class Combinator {
 
