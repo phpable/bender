@@ -130,7 +130,7 @@ class Combinator {
 				}
 
 				AExecutable::useContentType($Matches[2]);
-				echo sprintf("=> %s.%s\n", $Matches[1], $Matches[2]);
+				echo sprintf("=> %s\n", $Matches[1]);
 
 				/**
 				 * Lines leading by an equal sign are recognized like targets declarations
