@@ -4,6 +4,7 @@ namespace Able\Bender;
 use Able\Bender\Abstractions\AStreamable;
 use Able\Bender\Abstractions\AExecutable;
 
+use \Able\Bender\Interpreters\Copy;
 use \Able\Bender\Interpreters\Combine;
 use \Able\Bender\Interpreters\Export;
 use \Able\Bender\Interpreters\Composer;
@@ -122,7 +123,7 @@ class Combinator {
 				}
 
 				AExecutable::useContentType($Matches[2]);
-				echo sprintf("=> %s\n", $Matches[1]);
+				echo sprintf("=%s\n", $Matches[1]);
 
 				/**
 				 * Lines leading by an equal sign are recognized like targets declarations
@@ -142,6 +143,10 @@ class Combinator {
 						(new Export($this->Stream, $this->Source))
 							->execute();
 
+						break;
+					case 'copy':
+						(new Copy($this->Stream, $this->Source, $this->output()))
+							->execute();
 						break;
 					default:
 						throw new \Exception(sprintf('Invalid syntax: %s!', $line));

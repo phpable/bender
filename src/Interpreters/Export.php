@@ -12,7 +12,6 @@ use \Able\Helpers\Str;
 use \Able\Helpers\Arr;
 
 use \Exception;
-use \Generator;
 
 class Export
 	extends AExecutable {
@@ -36,7 +35,6 @@ class Export
 		}
 
 		$this->Prefix = $Prefix;
-
 		parent::__construct($Stream);
 	}
 

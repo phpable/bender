@@ -120,10 +120,10 @@ abstract class AExecutable
 	 * @throws Exception
 	 */
 	public final function execute(): Generator {
-		foreach ($this->Stack as $Propagated) {
+		foreach ($this->Stack as $Stacked) {
 			echo ".";
 
-			yield from $Propagated;
+			yield from $Stacked;
 		}
 	}
 
