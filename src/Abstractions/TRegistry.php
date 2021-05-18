@@ -19,14 +19,21 @@ trait TRegistry {
 	private static ?Registry $Registry = null;
 
 	/**
+	 * @return void
+	 */
+	public final static function flush(): void {
+		static::$Registry = null;
+	}
+
+	/**
 	 * @return Registry
 	 * @throws Exception
 	 */
 	protected final function registry(): Registry {
 		if (is_null(static::$Registry)) {
-			self::$Registry = new Registry($this->Prefix);
+			static::$Registry = new Registry($this->Prefix);
 		}
 
-		return self::$Registry;
+		return static::$Registry;
 	}
 }

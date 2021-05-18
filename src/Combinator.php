@@ -40,16 +40,16 @@ class Combinator {
 	}
 
 	/**
-	 * @var ReadingStream|null
+	 * @var ReadingStream
 	 */
-	private ?ReadingStream $Stream = null;
+	private ReadingStream $Stream;
 
 	/**
 	 * @return ReadingStream
 	 * @throws Exception
 	 */
 	protected final function stream(): ReadingStream {
-		if (is_null($this->Stream)) {
+		if (!isset($this->Stream)) {
 
 			$this->Stream = $this->source()
 				->toPath()->append('.bender')->toFile()->toReadingStream();
@@ -141,6 +141,7 @@ class Combinator {
 				switch ($Matches[1]) {
 					case 'export';
 						(new Export($this->Stream, $this->Source))
+
 							->execute();
 
 						break;
@@ -153,5 +154,7 @@ class Combinator {
 				}
 			}
 		}
+
+		Export::flush();
 	}
 }
