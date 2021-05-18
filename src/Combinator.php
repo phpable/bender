@@ -1,8 +1,9 @@
 <?php
 namespace Able\Bender;
 
-use Able\Bender\Abstractions\AStreamable;
-use Able\Bender\Abstractions\AExecutable;
+use \Able\Bender\Utilities\Registry;
+use \Able\Bender\Abstractions\AStreamable;
+use \Able\Bender\Abstractions\AExecutable;
 
 use \Able\Bender\Interpreters\Copy;
 use \Able\Bender\Interpreters\Combine;
@@ -28,6 +29,23 @@ class Combinator {
 	 */
 	protected final function source(): Directory {
 		return  $this->Source;
+	}
+
+	/**
+	 * @var Registry
+	 */
+	private Registry $Registry;
+
+	/**
+	 * @return Registry
+	 * @throws Exception
+	 */
+	protected final function registry(): Registry {
+		if (!isset($this->Registry)) {
+			$this->Registry = new Registry($this->source());
+		}
+
+		return $this->Registry;
 	}
 
 	/**
@@ -131,7 +149,7 @@ class Combinator {
 				 */
 				$this->output()->toPath()->append($Matches[1])
 					->forceFile()->purge()
-					->toWriter()->write((new Combine($this->Stream))->execute());
+					->toWriter()->write((new Combine($this->registry(), $this->Stream))->execute());
 
 				echo "\n";
 				continue;
@@ -140,21 +158,19 @@ class Combinator {
 			if (preg_match('/^(' . Regex::RE_KEYWORD . ')\s*:?\s*$/', $line, $Matches)) {
 				switch ($Matches[1]) {
 					case 'export';
-						(new Export($this->Stream, $this->Source))
-
+						(new Export($this->registry(), $this->Stream))
 							->execute();
 
 						break;
 					case 'copy':
-						(new Copy($this->Stream, $this->Source, $this->output()))
+						(new Copy($this->registry(), $this->Stream, $this->output()))
 							->execute();
+
 						break;
 					default:
 						throw new \Exception(sprintf('Invalid syntax: %s!', $line));
 				}
 			}
 		}
-
-		Export::flush();
 	}
 }

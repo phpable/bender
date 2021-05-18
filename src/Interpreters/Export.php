@@ -24,21 +24,6 @@ class Export
 	private array $Points = [];
 
 	/**
-	 * @param ReadingStream $Stream
-	 * @param Directory $Prefix
-	 *
-	 * @throws Exception
-	 */
-	public final function __construct(ReadingStream $Stream, Directory $Prefix) {
-		if (!$Prefix->isWritable()) {
-			throw new Exception(sprintf('The prefix directory is not writable: %s!', $Prefix));
-		}
-
-		$this->Prefix = $Prefix;
-		parent::__construct($Stream);
-	}
-
-	/**
 	 * @param string $line
 	 * @return bool
 	 *

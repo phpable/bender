@@ -22,6 +22,8 @@ trait TTargetable  {
 		if (is_null($Path = $this->registry()->search($Matches[1]))
 			|| !$Path->isReadable()) {
 
+				_dumpe($Path);
+
 				throw new Exception(sprintf('Invalid target allias: %s', $Matches[1]));
 		}
 

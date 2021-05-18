@@ -5,13 +5,14 @@ use \Able\Bender\Abstractions\AExecutable;
 use \Able\Helpers\Src;
 
 use \Generator;
+use \Exception;
 
 trait TNested {
 
-//	/**
-//	 * @var AExecutable[]
-//	 */
-//	protected array $Stack = [];
+	/**
+	 * @var array
+	 */
+	protected array $Stack = [];
 
 	/**
 	 * @param string $line
@@ -25,7 +26,7 @@ trait TNested {
 			if (class_exists($class = sprintf('%s\\Interpreters\\%s',
 			 	Src::lns(AStreamable::class, 2), Src::tcm($Parsed[1])))) {
 
-				array_push($this->Stack, $this->process((new $class($this->stream()))->execute()));
+				array_push($this->Stack, $this->process((new $class($this->registry(), $this->stream()))->execute()));
 				return true;
 			}
 		}

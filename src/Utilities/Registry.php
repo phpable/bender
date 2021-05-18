@@ -30,6 +30,13 @@ class Registry
 	protected Directory $Directory;
 
 	/**
+	 * @return Path
+	 */
+	public final function toPath(): Path {
+		return $this->Directory->toPath();
+	}
+
+	/**
 	 * Registry constructor.
 	 * @param Directory|null $Directory
 	 * @throws Exception

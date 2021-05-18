@@ -1,8 +1,8 @@
 <?php
 namespace Able\Bender\Abstractions;
 
-use \Able\IO\File;
 use \Able\IO\ReadingStream;
+use Able\Bender\Utilities\Registry;
 use \Able\IO\Abstractions\AStreamReader;
 
 use \Able\Prototypes\TTraitable;
@@ -10,9 +10,6 @@ use \Able\Prototypes\IExecutable;
 
 use \Able\Bender\Abstractions\TIndent;
 use \Able\Bender\Abstractions\TOption;
-use \Able\Bender\Abstractions\TRegistry;
-
-use \Able\Helpers\Src;
 
 use \Exception;
 use \Generator;
@@ -23,7 +20,6 @@ abstract class AExecutable
 	implements IExecutable {
 
 	use TTraitable;
-	use TRegistry;
 	use TIndent;
 
 	use TOption;
@@ -68,17 +64,33 @@ abstract class AExecutable
 	}
 
 	/**
+	 * @var Registry
+	 */
+	private Registry $Registry;
+
+	/**
+	 * @return Registry
+	 */
+	protected final function registry(): Registry {
+		return $this->Registry;
+	}
+
+	/**
 	 * @var array
 	 */
 	protected array $Stack = [];
 
+
 	/**
+	 * @param Registry $Registry
 	 * @param ReadingStream $Stream
+	 *
 	 * @throws Exception
 	 */
-	public function __construct(ReadingStream $Stream) {
+	public function __construct(Registry $Registry, ReadingStream $Stream) {
 		parent::__construct($Stream);
 
+		$this->Registry = $Registry;
 		while (!is_null($line = $this->stream()->read())) {
 
 			if (empty($line)) {
